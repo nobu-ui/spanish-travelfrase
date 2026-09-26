@@ -1,112 +1,256 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>スペイン旅行300フレーズ</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;color:#17202a}
-header{background:#c62828;color:white;padding:20px 16px 16px;position:sticky;top:0;z-index:5}h1{font-size:22px;margin:0 0 5px}header p{margin:0;font-size:13px;opacity:.9}
-main{max-width:700px;margin:auto;padding:18px 14px 40px}
-.menu button,.controls button{border:0;border-radius:12px;padding:13px 12px;font-size:16px;background:white;box-shadow:0 2px 8px #0001}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}.menu button:first-child{background:#c62828;color:#fff}
-.card{background:white;border-radius:20px;padding:26px 20px;box-shadow:0 5px 18px #0001;min-height:360px;display:flex;flex-direction:column;justify-content:center;text-align:center}
-.badge{display:inline-block;background:#f0f2f5;border-radius:20px;padding:6px 11px;font-size:12px;margin-bottom:20px}
-.question{font-size:25px;font-weight:700;line-height:1.5;margin:0 0 24px}.answer{display:none}.answer.show{display:block}.es{font-size:25px;font-weight:700;line-height:1.45}.kana{font-size:18px;color:#666;margin-top:10px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.controls .wide{grid-column:1/-1}.controls button{background:#fff}.controls button.primary{background:#263238;color:#fff}
-.nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:14px}.nav button{border:0;background:none;font-size:28px;padding:5px 18px}.heart{font-size:28px;border:0;background:none}.heart.on{color:#c62828}
-.progress{height:6px;background:#ddd;border-radius:9px;overflow:hidden;margin:8px 0 18px}.progress i{display:block;height:100%;background:#c62828;width:0}
-#app{display:none}.small{font-size:12px;color:#69737d;text-align:center;margin-top:12px}
-.level-menu{grid-template-columns:1fr 1fr}.level-menu button{min-height:72px}.level-menu small{display:block;font-size:11px;margin-top:5px;opacity:.8}.level-menu .lv1{background:#ffe1df;font-weight:700}.level-menu .lv2{background:#fff0c7;font-weight:700}.level-menu .lv3{background:#e5f2df;font-weight:700}</style>
-</head>
-<body>
-<header><h1>🇪🇸 スペイン旅行 300フレーズ</h1><p>日本語 → スペイン語＋カタカナ発音・ゆっくり読み上げ</p></header>
-<main>
-<section id="home">
-  <div class="menu level-menu">
-    <button class="lv1" id="level1Btn">🔥 絶対覚える50<small>まずはここから</small></button>
-    <button class="lv2" id="level2Btn">⭐ 次に覚える100<small>もう一段詳しく</small></button>
-    <button class="lv3" id="level3Btn">👍 できれば覚える150<small>余裕があれば</small></button>
-    <button id="allBtn">📚 300フレーズ全部</button>
-    <button id="weakBtn">★ 苦手だけ練習</button>
-  </div>
-  <div class="card" style="min-height:220px">
-    <h2>レベルを選んでスタート</h2>
-    <p>まずは「絶対覚える50」がおすすめです。</p>
-    <p>カードをめくるとスペイン語・カタカナ・音声が出ます。★で苦手なカードを保存できます。</p>
-  </div>
-</section>
-<section id="app">
-  <div class="nav"><button onclick="goHome()">‹</button><span id="count"></span><button class="heart" id="star" onclick="toggleStar()">☆</button></div>
-  <div class="progress"><i id="bar"></i></div>
-  <div class="card" onclick="flip()">
-    <div class="badge" id="cat"></div>
-    <div class="question" id="q"></div>
-    <div class="answer" id="a"><div class="es" id="es"></div><div class="kana" id="kana"></div></div>
-  </div>
-  <div class="controls">
-    <button class="primary wide" onclick="flip();event.stopPropagation()">カードをめくる</button>
-    <button onclick="speak();event.stopPropagation()">🔊 ゆっくり発音</button>
-    <button onclick="next();event.stopPropagation()">次のカード →</button>
-  </div>
-  <div class="small">★を押すと「苦手」に登録できます。出題順は毎回ランダムです。</div>
-</section>
-</main>
-<script>
-const data = [{"cat": "空港", "ja": "こんにちは", "es": "Hola", "kana": "オラ", "_i": 0}, {"cat": "空港", "ja": "お願いします", "es": "Por favor", "kana": "ポル ファボール", "_i": 1}, {"cat": "空港", "ja": "ありがとうございます", "es": "Muchas gracias", "kana": "ムーチャス グラシアス", "_i": 2}, {"cat": "空港", "ja": "すみません", "es": "Perdón", "kana": "ペルドン", "_i": 3}, {"cat": "空港", "ja": "英語を話せますか？", "es": "¿Habla inglés?", "kana": "アブラ イングレス？", "_i": 4}, {"cat": "空港", "ja": "日本語を話せる人はいますか？", "es": "¿Hay alguien que hable japonés?", "kana": "アイ アルギエン ケ アブレ ハポネス？", "_i": 5}, {"cat": "空港", "ja": "空港はどこですか？", "es": "¿Dónde está el aeropuerto?", "kana": "ドンデ エスタ エル アエロプエルト？", "_i": 6}, {"cat": "空港", "ja": "チェックインカウンターはどこですか？", "es": "¿Dónde está el mostrador de facturación?", "kana": "ドンデ エスタ エル モストラドール デ ファクトゥラシオン？", "_i": 7}, {"cat": "空港", "ja": "この便はどこから出ますか？", "es": "¿De dónde sale este vuelo?", "kana": "デ ドンデ サレ エステ ブエロ？", "_i": 8}, {"cat": "空港", "ja": "搭乗口は何番ですか？", "es": "¿Cuál es la puerta de embarque?", "kana": "クアル エス ラ プエルタ デ エンバルケ？", "_i": 9}, {"cat": "空港", "ja": "搭乗口はどこですか？", "es": "¿Dónde está la puerta de embarque?", "kana": "ドンデ エスタ ラ プエルタ デ エンバルケ？", "_i": 10}, {"cat": "空港", "ja": "この便は遅れていますか？", "es": "¿Este vuelo está retrasado?", "kana": "エステ ブエロ エスタ レトラサド？", "_i": 11}, {"cat": "空港", "ja": "荷物を預けたいです", "es": "Quiero facturar mi equipaje", "kana": "キエロ ファクトゥラール ミ エキパヘ", "_i": 12}, {"cat": "空港", "ja": "手荷物はどこですか？", "es": "¿Dónde está la recogida de equipaje?", "kana": "ドンデ エスタ ラ レコヒダ デ エキパヘ？", "_i": 13}, {"cat": "空港", "ja": "荷物が出てきません", "es": "Mi equipaje no ha llegado", "kana": "ミ エキパヘ ノ ア ジェガド", "_i": 14}, {"cat": "空港", "ja": "この荷物は壊れています", "es": "Este equipaje está dañado", "kana": "エステ エキパヘ エスタ ダニャド", "_i": 15}, {"cat": "空港", "ja": "紛失した荷物について相談したいです", "es": "Quiero reclamar por mi equipaje perdido", "kana": "キエロ レクラマール ポル ミ エキパヘ ペルディド", "_i": 16}, {"cat": "空港", "ja": "出口はどこですか？", "es": "¿Dónde está la salida?", "kana": "ドンデ エスタ ラ サリダ？", "_i": 17}, {"cat": "空港", "ja": "タクシー乗り場はどこですか？", "es": "¿Dónde está la parada de taxis?", "kana": "ドンデ エスタ ラ パラダ デ タクシス？", "_i": 18}, {"cat": "空港", "ja": "電車はどこですか？", "es": "¿Dónde está el tren?", "kana": "ドンデ エスタ エル トレン？", "_i": 19}, {"cat": "空港", "ja": "市内中心部へ行きたいです", "es": "Quiero ir al centro de la ciudad", "kana": "キエロ イル アル セントロ デ ラ シウダ", "_i": 20}, {"cat": "空港", "ja": "バルセロナ市内へ行きたいです", "es": "Quiero ir al centro de Barcelona", "kana": "キエロ イル アル セントロ デ バルセロナ", "_i": 21}, {"cat": "空港", "ja": "この切符を買えますか？", "es": "¿Puedo comprar un billete aquí?", "kana": "プエド コンプロール ウン ビジェテ アキ？", "_i": 22}, {"cat": "空港", "ja": "クレジットカードは使えますか？", "es": "¿Puedo pagar con tarjeta?", "kana": "プエド パガール コン タルヘタ？", "_i": 23}, {"cat": "空港", "ja": "現金だけですか？", "es": "¿Solo efectivo?", "kana": "ソロ エフェクティボ？", "_i": 24}, {"cat": "空港", "ja": "トイレはどこですか？", "es": "¿Dónde está el baño?", "kana": "ドンデ エスタ エル バニョ？", "_i": 25}, {"cat": "空港", "ja": "Wi-Fiはありますか？", "es": "¿Hay Wi-Fi?", "kana": "アイ ワイファイ？", "_i": 26}, {"cat": "空港", "ja": "無料ですか？", "es": "¿Es gratis?", "kana": "エス グラティス？", "_i": 27}, {"cat": "空港", "ja": "助けてもらえますか？", "es": "¿Me puede ayudar?", "kana": "メ プエデ アユダール？", "_i": 28}, {"cat": "ホテル", "ja": "予約しています", "es": "Tengo una reserva", "kana": "テンゴ ウナ レセルバ", "_i": 29}, {"cat": "ホテル", "ja": "鈴木という名前で予約しています", "es": "Tengo una reserva a nombre de Suzuki", "kana": "テンゴ ウナ レセルバ ア ノンブレ デ スズキ", "_i": 30}, {"cat": "ホテル", "ja": "チェックインしたいです", "es": "Quiero hacer el check-in", "kana": "キエロ アセール エル チェックイン", "_i": 31}, {"cat": "ホテル", "ja": "チェックアウトしたいです", "es": "Quiero hacer el check-out", "kana": "キエロ アセール エル チェックアウト", "_i": 32}, {"cat": "ホテル", "ja": "部屋は何号室ですか？", "es": "¿Cuál es el número de la habitación?", "kana": "クアル エス エル ヌメロ デ ラ アビタシオン？", "_i": 33}, {"cat": "ホテル", "ja": "朝食は何時ですか？", "es": "¿A qué hora es el desayuno?", "kana": "ア ケ オラ エス エル デサユノ？", "_i": 34}, {"cat": "ホテル", "ja": "朝食はどこですか？", "es": "¿Dónde está el desayuno?", "kana": "ドンデ エスタ エル デサユノ？", "_i": 35}, {"cat": "ホテル", "ja": "朝食は含まれていますか？", "es": "¿Está incluido el desayuno?", "kana": "エスタ インクルイド エル デサユノ？", "_i": 36}, {"cat": "ホテル", "ja": "Wi-Fiのパスワードを教えてください", "es": "¿Cuál es la contraseña del Wi-Fi?", "kana": "クアル エス ラ コントラセニャ デル ワイファイ？", "_i": 37}, {"cat": "ホテル", "ja": "エレベーターはどこですか？", "es": "¿Dónde está el ascensor?", "kana": "ドンデ エスタ エル アセソール？", "_i": 38}, {"cat": "ホテル", "ja": "部屋はどこですか？", "es": "¿Dónde está mi habitación?", "kana": "ドンデ エスタ ミ アビタシオン？", "_i": 39}, {"cat": "ホテル", "ja": "荷物を預かってもらえますか？", "es": "¿Pueden guardar mi equipaje?", "kana": "プエデン グアルダール ミ エキパヘ？", "_i": 40}, {"cat": "ホテル", "ja": "早めにチェックインできますか？", "es": "¿Podemos hacer el check-in antes?", "kana": "ポデモス アセール エル チェックイン アンテス？", "_i": 41}, {"cat": "ホテル", "ja": "遅くチェックアウトできますか？", "es": "¿Podemos hacer el check-out más tarde?", "kana": "ポデモス アセール エル チェックアウト マス タルデ？", "_i": 42}, {"cat": "ホテル", "ja": "部屋を変えてもらえますか？", "es": "¿Podemos cambiar de habitación?", "kana": "ポデモス カンビアール デ アビタシオン？", "_i": 43}, {"cat": "ホテル", "ja": "部屋が少しうるさいです", "es": "La habitación es un poco ruidosa", "kana": "ラ アビタシオン エス ウン ポコ ルイドサ", "_i": 44}, {"cat": "ホテル", "ja": "エアコンが動きません", "es": "El aire acondicionado no funciona", "kana": "エル アイレ アコンディシオナド ノ フンシオナ", "_i": 45}, {"cat": "ホテル", "ja": "暖房が動きません", "es": "La calefacción no funciona", "kana": "ラ カレファクシオン ノ フンシオナ", "_i": 46}, {"cat": "ホテル", "ja": "お湯が出ません", "es": "No hay agua caliente", "kana": "ノ アイ アグア カリエンテ", "_i": 47}, {"cat": "ホテル", "ja": "タオルを追加でもらえますか？", "es": "¿Puede traerme más toallas?", "kana": "プエデ トラエルメ マス トアジャス？", "_i": 48}, {"cat": "ホテル", "ja": "水をもう少しください", "es": "¿Puede traerme más agua?", "kana": "プエデ トラエルメ マス アグア？", "_i": 49}, {"cat": "ホテル", "ja": "部屋を掃除してください", "es": "Por favor, limpie la habitación", "kana": "ポル ファボール リンピエ ラ アビタシオン", "_i": 50}, {"cat": "ホテル", "ja": "掃除は不要です", "es": "No necesitamos limpieza", "kana": "ノ ネセシタモス リンピエサ", "_i": 51}, {"cat": "ホテル", "ja": "鍵をなくしました", "es": "He perdido la llave", "kana": "エ ペルディド ラ ジャベ", "_i": 52}, {"cat": "ホテル", "ja": "カードキーが使えません", "es": "La tarjeta no funciona", "kana": "ラ タルヘタ ノ フンシオナ", "_i": 53}, {"cat": "ホテル", "ja": "フロントは24時間ですか？", "es": "¿La recepción está abierta las 24 horas?", "kana": "ラ レセプシオン エスタ アビエルタ ラス ベインティクアトロ オラス？", "_i": 54}, {"cat": "ホテル", "ja": "タクシーを呼んでもらえますか？", "es": "¿Puede llamar a un taxi?", "kana": "プエデ ジャマール ア ウン タクシ？", "_i": 55}, {"cat": "ホテル", "ja": "おすすめのレストランはありますか？", "es": "¿Puede recomendarme un restaurante?", "kana": "プエデ レコメンダールメ ウン レスタウランテ？", "_i": 56}, {"cat": "ホテル", "ja": "駅まで歩いて何分ですか？", "es": "¿Cuántos minutos hay hasta la estación andando?", "kana": "クアントス ミヌトス アイ アスタ ラ エスタシオン アンダンド？", "_i": 57}, {"cat": "レストラン", "ja": "3人です", "es": "Somos tres", "kana": "ソモス トレス", "_i": 58}, {"cat": "レストラン", "ja": "予約しています", "es": "Tenemos una reserva", "kana": "テネモス ウナ レセルバ", "_i": 59}, {"cat": "レストラン", "ja": "予約していません", "es": "No tenemos reserva", "kana": "ノ テネモス レセルバ", "_i": 60}, {"cat": "レストラン", "ja": "テーブルをお願いします", "es": "Una mesa, por favor", "kana": "ウナ メサ ポル ファボール", "_i": 61}, {"cat": "レストラン", "ja": "メニューをお願いします", "es": "La carta, por favor", "kana": "ラ カルタ ポル ファボール", "_i": 62}, {"cat": "レストラン", "ja": "英語のメニューはありますか？", "es": "¿Tiene la carta en inglés?", "kana": "ティエネ ラ カルタ エン イングレス？", "_i": 63}, {"cat": "レストラン", "ja": "おすすめは何ですか？", "es": "¿Qué recomienda?", "kana": "ケ レコメエンダ？", "_i": 64}, {"cat": "レストラン", "ja": "これは何ですか？", "es": "¿Qué es esto?", "kana": "ケ エス エスト？", "_i": 65}, {"cat": "レストラン", "ja": "これは辛いですか？", "es": "¿Esto es picante?", "kana": "エスト エス ピカンテ？", "_i": 66}, {"cat": "レストラン", "ja": "辛くないものはありますか？", "es": "¿Tiene algo que no sea picante?", "kana": "ティエネ アルゴ ケ ノ セア ピカンテ？", "_i": 67}, {"cat": "レストラン", "ja": "これは辛くしないでください", "es": "Sin picante, por favor", "kana": "シン ピカンテ ポル ファボール", "_i": 68}, {"cat": "レストラン", "ja": "アレルギーがあります", "es": "Tengo una alergia", "kana": "テンゴ ウナ アレルヒア", "_i": 69}, {"cat": "レストラン", "ja": "肉は食べません", "es": "No como carne", "kana": "ノ コモ カルネ", "_i": 70}, {"cat": "レストラン", "ja": "魚は食べません", "es": "No como pescado", "kana": "ノ コモ ペスカド", "_i": 71}, {"cat": "レストラン", "ja": "豚肉は食べません", "es": "No como cerdo", "kana": "ノ コモ セルド", "_i": 72}, {"cat": "レストラン", "ja": "これは何の肉ですか？", "es": "¿Qué tipo de carne es?", "kana": "ケ ティポ デ カルネ エス？", "_i": 73}, {"cat": "レストラン", "ja": "水をください", "es": "Agua, por favor", "kana": "アグア ポル ファボール", "_i": 74}, {"cat": "レストラン", "ja": "炭酸水をください", "es": "Agua con gas, por favor", "kana": "アグア コン ガス ポル ファボール", "_i": 75}, {"cat": "レストラン", "ja": "普通の水をください", "es": "Agua sin gas, por favor", "kana": "アグア シン ガス ポル ファボール", "_i": 76}, {"cat": "レストラン", "ja": "パンをください", "es": "Pan, por favor", "kana": "パン ポル ファボール", "_i": 77}, {"cat": "レストラン", "ja": "もう一杯ください", "es": "Otra, por favor", "kana": "オトラ ポル ファボール", "_i": 78}, {"cat": "レストラン", "ja": "コーヒーをください", "es": "Un café, por favor", "kana": "ウン カフェ ポル ファボール", "_i": 79}, {"cat": "レストラン", "ja": "カフェラテをください", "es": "Un café con leche, por favor", "kana": "ウン カフェ コン レチェ ポル ファボール", "_i": 80}, {"cat": "レストラン", "ja": "ビールは飲みません", "es": "No bebemos alcohol", "kana": "ノ ベベモス アルコオル", "_i": 81}, {"cat": "レストラン", "ja": "ワインは飲みません", "es": "No bebemos vino", "kana": "ノ ベベモス ビノ", "_i": 82}, {"cat": "レストラン", "ja": "これをください", "es": "Esto, por favor", "kana": "エスト ポル ファボール", "_i": 83}, {"cat": "レストラン", "ja": "一つください", "es": "Uno, por favor", "kana": "ウノ ポル ファボール", "_i": 84}, {"cat": "レストラン", "ja": "二つください", "es": "Dos, por favor", "kana": "ドス ポル ファボール", "_i": 85}, {"cat": "レストラン", "ja": "少なめにしてください", "es": "Un poco menos, por favor", "kana": "ウン ポコ メノス ポル ファボール", "_i": 86}, {"cat": "レストラン", "ja": "多めにしてください", "es": "Un poco más, por favor", "kana": "ウン ポコ マス ポル ファボール", "_i": 87}, {"cat": "レストラン", "ja": "取り皿をください", "es": "Un plato más, por favor", "kana": "ウン プラト マス ポル ファボール", "_i": 88}, {"cat": "レストラン", "ja": "スプーンをください", "es": "Una cuchara, por favor", "kana": "ウナ クチャラ ポル ファボール", "_i": 89}, {"cat": "レストラン", "ja": "フォークをください", "es": "Un tenedor, por favor", "kana": "ウン テネドール ポル ファボール", "_i": 90}, {"cat": "レストラン", "ja": "ナイフをください", "es": "Un cuchillo, por favor", "kana": "ウン クチージョ ポル ファボール", "_i": 91}, {"cat": "レストラン", "ja": "トイレはどこですか？", "es": "¿Dónde está el baño?", "kana": "ドンデ エスタ エル バニョ？", "_i": 92}, {"cat": "レストラン", "ja": "お会計をお願いします", "es": "La cuenta, por favor", "kana": "ラ クエンタ ポル ファボール", "_i": 93}, {"cat": "レストラン", "ja": "別々に払えますか？", "es": "¿Podemos pagar por separado?", "kana": "ポデモス パガール ポル セパラド？", "_i": 94}, {"cat": "レストラン", "ja": "カードで払えますか？", "es": "¿Puedo pagar con tarjeta?", "kana": "プエド パガール コン タルヘタ？", "_i": 95}, {"cat": "レストラン", "ja": "現金で払います", "es": "Pago en efectivo", "kana": "パゴ エン エフェクティボ", "_i": 96}, {"cat": "レストラン", "ja": "チップは含まれていますか？", "es": "¿Está incluida la propina?", "kana": "エスタ インクルイダ ラ プロピナ？", "_i": 97}, {"cat": "レストラン", "ja": "持ち帰れますか？", "es": "¿Me lo puede poner para llevar?", "kana": "メ ロ プエデ ポネール パラ ジェバール？", "_i": 98}, {"cat": "レストラン", "ja": "とてもおいしいです", "es": "Está muy rico", "kana": "エスタ ムイ リコ", "_i": 99}, {"cat": "レストラン", "ja": "ごちそうさまでした", "es": "Muchas gracias, estaba todo muy rico", "kana": "ムーチャス グラシアス エスタバ トド ムイ リコ", "_i": 100}, {"cat": "お店", "ja": "これはいくらですか？", "es": "¿Cuánto cuesta esto?", "kana": "クアント クエスタ エスト？", "_i": 101}, {"cat": "お店", "ja": "いくらですか？", "es": "¿Cuánto es?", "kana": "クアント エス？", "_i": 102}, {"cat": "お店", "ja": "これを見せてください", "es": "¿Me puede enseñar esto?", "kana": "メ プエデ エンセニャール エスト？", "_i": 103}, {"cat": "お店", "ja": "別のサイズはありますか？", "es": "¿Tiene otra talla?", "kana": "ティエネ オトラ タジャ？", "_i": 104}, {"cat": "お店", "ja": "もっと大きいサイズはありますか？", "es": "¿Tiene una talla más grande?", "kana": "ティエネ ウナ タジャ マス グランデ？", "_i": 105}, {"cat": "お店", "ja": "もっと小さいサイズはありますか？", "es": "¿Tiene una talla más pequeña?", "kana": "ティエネ ウナ タジャ マス ペケニャ？", "_i": 106}, {"cat": "お店", "ja": "別の色はありますか？", "es": "¿Tiene otro color?", "kana": "ティエネ オトロ コロール？", "_i": 107}, {"cat": "お店", "ja": "黒はありますか？", "es": "¿Tiene negro?", "kana": "ティエネ ネグロ？", "_i": 108}, {"cat": "お店", "ja": "白はありますか？", "es": "¿Tiene blanco?", "kana": "ティエネ ブランコ？", "_i": 109}, {"cat": "お店", "ja": "試着できますか？", "es": "¿Me lo puedo probar?", "kana": "メ ロ プエド プロバール？", "_i": 110}, {"cat": "お店", "ja": "これを買います", "es": "Me llevo esto", "kana": "メ ジェボ エスト", "_i": 111}, {"cat": "お店", "ja": "少し考えます", "es": "Voy a pensarlo", "kana": "ボイ ア ペンサールロ", "_i": 112}, {"cat": "お店", "ja": "もう少し安いものはありますか？", "es": "¿Tiene algo más barato?", "kana": "ティエネ アルゴ マス バラト？", "_i": 113}, {"cat": "お店", "ja": "セールですか？", "es": "¿Está de oferta?", "kana": "エスタ デ オフェルタ？", "_i": 114}, {"cat": "お店", "ja": "割引はありますか？", "es": "¿Hay algún descuento?", "kana": "アイ アルグン デスクエント？", "_i": 115}, {"cat": "お店", "ja": "免税できますか？", "es": "¿Puedo hacer el tax free?", "kana": "プエド アセール エル タックス フリー？", "_i": 116}, {"cat": "お店", "ja": "パスポートが必要ですか？", "es": "¿Necesito el pasaporte?", "kana": "ネセシト エル パサポルテ？", "_i": 117}, {"cat": "お店", "ja": "袋をください", "es": "Una bolsa, por favor", "kana": "ウナ ボルサ ポル ファボール", "_i": 118}, {"cat": "お店", "ja": "レシートをください", "es": "El recibo, por favor", "kana": "エル レシボ ポル ファボール", "_i": 119}, {"cat": "お店", "ja": "カードは使えますか？", "es": "¿Puedo pagar con tarjeta?", "kana": "プエド パガール コン タルヘタ？", "_i": 120}, {"cat": "お店", "ja": "現金だけですか？", "es": "¿Solo efectivo?", "kana": "ソロ エフェクティボ？", "_i": 121}, {"cat": "お店", "ja": "日本円は使えますか？", "es": "¿Aceptan yenes japoneses?", "kana": "アセプタン ジェネス ハポネセス？", "_i": 122}, {"cat": "お店", "ja": "ユーロに両替できますか？", "es": "¿Puedo cambiar dinero a euros?", "kana": "プエド カンビアール ディネロ ア エウロス？", "_i": 123}, {"cat": "お店", "ja": "これはスペイン製ですか？", "es": "¿Está hecho en España?", "kana": "エスタ エチョ エン エスパニャ？", "_i": 124}, {"cat": "お店", "ja": "これは本物ですか？", "es": "¿Es auténtico?", "kana": "エス アウテントィコ？", "_i": 125}, {"cat": "お店", "ja": "返品できますか？", "es": "¿Puedo devolverlo?", "kana": "プエド デボルベールロ？", "_i": 126}, {"cat": "お店", "ja": "交換できますか？", "es": "¿Puedo cambiarlo?", "kana": "プエド カンビアールロ？", "_i": 127}, {"cat": "お店", "ja": "営業時間は何時までですか？", "es": "¿Hasta qué hora está abierto?", "kana": "アスタ ケ オラ エスタ アビエルト？", "_i": 128}, {"cat": "お店", "ja": "近くにスーパーはありますか？", "es": "¿Hay un supermercado cerca?", "kana": "アイ ウン スペルメルカド セルカ？", "_i": 129}, {"cat": "電車・バス", "ja": "駅はどこですか？", "es": "¿Dónde está la estación?", "kana": "ドンデ エスタ ラ エスタシオン？", "_i": 130}, {"cat": "電車・バス", "ja": "バス停はどこですか？", "es": "¿Dónde está la parada de autobús?", "kana": "ドンデ エスタ ラ パラダ デ アウトブス？", "_i": 131}, {"cat": "電車・バス", "ja": "この電車はバルセロナに行きますか？", "es": "¿Este tren va a Barcelona?", "kana": "エステ トレン バ ア バルセロナ？", "_i": 132}, {"cat": "電車・バス", "ja": "このバスは中心部に行きますか？", "es": "¿Este autobús va al centro?", "kana": "エステ アウトブス バ アル セントロ？", "_i": 133}, {"cat": "電車・バス", "ja": "この電車は〇〇に行きますか？", "es": "¿Este tren va a ___?", "kana": "エステ トレン バ ア ___？", "_i": 134}, {"cat": "電車・バス", "ja": "〇〇駅はどこですか？", "es": "¿Dónde está la estación de ___?", "kana": "ドンデ エスタ ラ エスタシオン デ ___？", "_i": 135}, {"cat": "電車・バス", "ja": "切符売り場はどこですか？", "es": "¿Dónde está la taquilla?", "kana": "ドンデ エスタ ラ タキージャ？", "_i": 136}, {"cat": "電車・バス", "ja": "切符を一枚ください", "es": "Un billete, por favor", "kana": "ウン ビジェテ ポル ファボール", "_i": 137}, {"cat": "電車・バス", "ja": "往復切符をください", "es": "Un billete de ida y vuelta, por favor", "kana": "ウン ビジェテ デ イダ イ ブエルタ ポル ファボール", "_i": 138}, {"cat": "電車・バス", "ja": "片道です", "es": "Solo ida", "kana": "ソロ イダ", "_i": 139}, {"cat": "電車・バス", "ja": "いくらですか？", "es": "¿Cuánto cuesta?", "kana": "クアント クエスタ？", "_i": 140}, {"cat": "電車・バス", "ja": "何番線ですか？", "es": "¿Qué andén es?", "kana": "ケ アンデン エス？", "_i": 141}, {"cat": "電車・バス", "ja": "何番ホームですか？", "es": "¿Qué vía es?", "kana": "ケ ビア エス？", "_i": 142}, {"cat": "電車・バス", "ja": "何時に出発しますか？", "es": "¿A qué hora sale?", "kana": "ア ケ オラ サレ？", "_i": 143}, {"cat": "電車・バス", "ja": "何時に到着しますか？", "es": "¿A qué hora llega?", "kana": "ア ケ オラ ジェガ？", "_i": 144}, {"cat": "電車・バス", "ja": "何分かかりますか？", "es": "¿Cuánto tarda?", "kana": "クアント タルダ？", "_i": 145}, {"cat": "電車・バス", "ja": "乗り換えが必要ですか？", "es": "¿Tengo que hacer transbordo?", "kana": "テンゴ ケ アセール トランスボルド？", "_i": 146}, {"cat": "電車・バス", "ja": "どこで乗り換えますか？", "es": "¿Dónde tengo que cambiar?", "kana": "ドンデ テンゴ ケ カンビアール？", "_i": 147}, {"cat": "電車・バス", "ja": "この席は空いていますか？", "es": "¿Está libre este asiento?", "kana": "エスタ リブレ エステ アシエント？", "_i": 148}, {"cat": "電車・バス", "ja": "ここに座ってもいいですか？", "es": "¿Puedo sentarme aquí?", "kana": "プエド センタールメ アキ？", "_i": 149}, {"cat": "電車・バス", "ja": "次の駅で降ります", "es": "Bajo en la próxima estación", "kana": "バホ エン ラ プロキシマ エスタシオン", "_i": 150}, {"cat": "電車・バス", "ja": "ここで降りますか？", "es": "¿Bajo aquí?", "kana": "バホ アキ？", "_i": 151}, {"cat": "電車・バス", "ja": "次のバスはいつですか？", "es": "¿Cuándo pasa el próximo autobús?", "kana": "クアンド パサ エル プロキシモ アウトブス？", "_i": 152}, {"cat": "電車・バス", "ja": "このバスは空港へ行きますか？", "es": "¿Este autobús va al aeropuerto?", "kana": "エステ アウトブス バ アル アエロプエルト？", "_i": 153}, {"cat": "電車・バス", "ja": "地下鉄はどこですか？", "es": "¿Dónde está el metro?", "kana": "ドンデ エスタ エル メトロ？", "_i": 154}, {"cat": "電車・バス", "ja": "地下鉄の入口はどこですか？", "es": "¿Dónde está la entrada del metro?", "kana": "ドンデ エスタ ラ エントラダ デル メトロ？", "_i": 155}, {"cat": "電車・バス", "ja": "このカードは使えますか？", "es": "¿Puedo usar esta tarjeta?", "kana": "プエド ウサール エスタ タルヘタ？", "_i": 156}, {"cat": "電車・バス", "ja": "一日券はありますか？", "es": "¿Hay un billete de un día?", "kana": "アイ ウン ビジェテ デ ウン ディア？", "_i": 157}, {"cat": "電車・バス", "ja": "ここから歩いて行けますか？", "es": "¿Se puede ir andando desde aquí?", "kana": "セ プエデ イル アンダンド デスデ アキ？", "_i": 158}, {"cat": "タクシー", "ja": "タクシーをお願いします", "es": "Un taxi, por favor", "kana": "ウン タクシ ポル ファボール", "_i": 159}, {"cat": "タクシー", "ja": "ホテルまでお願いします", "es": "Al hotel, por favor", "kana": "アル オテル ポル ファボール", "_i": 160}, {"cat": "タクシー", "ja": "この住所までお願いします", "es": "A esta dirección, por favor", "kana": "ア エスタ ディレクシオン ポル ファボール", "_i": 161}, {"cat": "タクシー", "ja": "ここまでお願いします", "es": "Hasta aquí, por favor", "kana": "アスタ アキ ポル ファボール", "_i": 162}, {"cat": "タクシー", "ja": "空港までお願いします", "es": "Al aeropuerto, por favor", "kana": "アル アエロプエルト ポル ファボール", "_i": 163}, {"cat": "タクシー", "ja": "駅までお願いします", "es": "A la estación, por favor", "kana": "ア ラ エスタシオン ポル ファボール", "_i": 164}, {"cat": "タクシー", "ja": "この場所を知っていますか？", "es": "¿Conoce este lugar?", "kana": "コノセ エステ ルガール？", "_i": 165}, {"cat": "タクシー", "ja": "ここで止めてください", "es": "Pare aquí, por favor", "kana": "パレ アキ ポル ファボール", "_i": 166}, {"cat": "タクシー", "ja": "右に曲がってください", "es": "Gire a la derecha, por favor", "kana": "ヒレ ア ラ デレチャ ポル ファボール", "_i": 167}, {"cat": "タクシー", "ja": "左に曲がってください", "es": "Gire a la izquierda, por favor", "kana": "ヒレ ア ラ イスキエルダ ポル ファボール", "_i": 168}, {"cat": "タクシー", "ja": "まっすぐ行ってください", "es": "Siga recto, por favor", "kana": "シガ レクト ポル ファボール", "_i": 169}, {"cat": "タクシー", "ja": "ゆっくりお願いします", "es": "Más despacio, por favor", "kana": "マス デスパシオ ポル ファボール", "_i": 170}, {"cat": "タクシー", "ja": "いくらくらいですか？", "es": "¿Cuánto cuesta aproximadamente?", "kana": "クアント クエスタ アプロキシマダメンテ？", "_i": 171}, {"cat": "タクシー", "ja": "カードで払えますか？", "es": "¿Puedo pagar con tarjeta?", "kana": "プエド パガール コン タルヘタ？", "_i": 172}, {"cat": "タクシー", "ja": "現金で払います", "es": "Pago en efectivo", "kana": "パゴ エン エフェクティボ", "_i": 173}, {"cat": "タクシー", "ja": "領収書をください", "es": "El recibo, por favor", "kana": "エル レシボ ポル ファボール", "_i": 174}, {"cat": "タクシー", "ja": "ここで待ってもらえますか？", "es": "¿Puede esperarnos aquí?", "kana": "プエデ エスペラールノス アキ？", "_i": 175}, {"cat": "タクシー", "ja": "何分くらいかかりますか？", "es": "¿Cuánto tardamos aproximadamente?", "kana": "クアント タルダモス アプロキシマダメンテ？", "_i": 176}, {"cat": "タクシー", "ja": "渋滞していますか？", "es": "¿Hay tráfico?", "kana": "アイ トラフィコ？", "_i": 177}, {"cat": "タクシー", "ja": "この道で合っていますか？", "es": "¿Vamos bien por aquí?", "kana": "バモス ビエン ポル アキ？", "_i": 178}, {"cat": "タクシー", "ja": "ありがとう", "es": "Gracias", "kana": "グラシアス", "_i": 179}, {"cat": "タクシー", "ja": "とても助かりました", "es": "Muchas gracias", "kana": "ムーチャス グラシアス", "_i": 180}, {"cat": "タクシー", "ja": "ここで大丈夫です", "es": "Aquí está bien", "kana": "アキ エスタ ビエン", "_i": 181}, {"cat": "タクシー", "ja": "少し待ってください", "es": "Espere un momento, por favor", "kana": "エスペレ ウン モメント ポル ファボール", "_i": 182}, {"cat": "タクシー", "ja": "荷物をトランクに入れてください", "es": "Ponga el equipaje en el maletero, por favor", "kana": "ポンガ エル エキパヘ エン エル マレテロ ポル ファボール", "_i": 183}, {"cat": "タクシー", "ja": "荷物を出してください", "es": "Saque el equipaje, por favor", "kana": "サケ エル エキパヘ ポル ファボール", "_i": 184}, {"cat": "タクシー", "ja": "ホテルの入口で降ろしてください", "es": "Déjenos en la entrada del hotel, por favor", "kana": "デヘノス エン ラ エントラダ デル オテル ポル ファボール", "_i": 185}, {"cat": "タクシー", "ja": "この場所に戻ってきたいです", "es": "Quiero volver a este lugar", "kana": "キエロ ボルベール ア エステ ルガール", "_i": 186}, {"cat": "タクシー", "ja": "予約したホテルです", "es": "Es el hotel que hemos reservado", "kana": "エス エル オテル ケ エモス レセルバド", "_i": 187}, {"cat": "観光・会話", "ja": "観光案内所はどこですか？", "es": "¿Dónde está la oficina de turismo?", "kana": "ドンデ エスタ ラ オフィシナ デ トゥリスモ？", "_i": 188}, {"cat": "観光・会話", "ja": "ここから近いですか？", "es": "¿Está cerca de aquí?", "kana": "エスタ セルカ デ アキ？", "_i": 189}, {"cat": "観光・会話", "ja": "歩いて行けますか？", "es": "¿Se puede ir andando?", "kana": "セ プエデ イル アンダンド？", "_i": 190}, {"cat": "観光・会話", "ja": "どちらへ行けばいいですか？", "es": "¿Por dónde tengo que ir?", "kana": "ポル ドンデ テンゴ ケ イル？", "_i": 191}, {"cat": "観光・会話", "ja": "地図をもらえますか？", "es": "¿Me puede dar un mapa?", "kana": "メ プエデ ダール ウン マパ？", "_i": 192}, {"cat": "観光・会話", "ja": "写真を撮ってもらえますか？", "es": "¿Nos puede hacer una foto?", "kana": "ノス プエデ アセール ウナ フォト？", "_i": 193}, {"cat": "観光・会話", "ja": "写真を撮ってもいいですか？", "es": "¿Puedo hacer una foto?", "kana": "プエド アセール ウナ フォト？", "_i": 194}, {"cat": "観光・会話", "ja": "ここは何という場所ですか？", "es": "¿Cómo se llama este lugar?", "kana": "コモ セ ジャマ エステ ルガール？", "_i": 195}, {"cat": "観光・会話", "ja": "何時まで開いていますか？", "es": "¿Hasta qué hora está abierto?", "kana": "アスタ ケ オラ エスタ アビエルト？", "_i": 196}, {"cat": "観光・会話", "ja": "入場料はいくらですか？", "es": "¿Cuánto cuesta la entrada?", "kana": "クアント クエスタ ラ エントラダ？", "_i": 197}, {"cat": "観光・会話", "ja": "予約が必要ですか？", "es": "¿Es necesario reservar?", "kana": "エス ネセサリオ レセルバール？", "_i": 198}, {"cat": "観光・会話", "ja": "予約はどこでできますか？", "es": "¿Dónde puedo reservar?", "kana": "ドンデ プエド レセルバール？", "_i": 199}, {"cat": "観光・会話", "ja": "日本語の案内はありますか？", "es": "¿Hay información en japonés?", "kana": "アイ インフォルマシオン エン ハポネス？", "_i": 200}, {"cat": "観光・会話", "ja": "英語の案内はありますか？", "es": "¿Hay información en inglés?", "kana": "アイ インフォルマシオン エン イングレス？", "_i": 201}, {"cat": "観光・会話", "ja": "オーディオガイドはありますか？", "es": "¿Hay audioguía?", "kana": "アイ アウディオギア？", "_i": 202}, {"cat": "観光・会話", "ja": "日本語のオーディオガイドはありますか？", "es": "¿Hay audioguía en japonés?", "kana": "アイ アウディオギア エン ハポネス？", "_i": 203}, {"cat": "観光・会話", "ja": "ここで待ちますか？", "es": "¿Esperamos aquí?", "kana": "エスペラモス アキ？", "_i": 204}, {"cat": "観光・会話", "ja": "何時に集合しますか？", "es": "¿A qué hora nos reunimos?", "kana": "ア ケ オラ ノス レウニモス？", "_i": 205}, {"cat": "観光・会話", "ja": "ここで会いましょう", "es": "Nos vemos aquí", "kana": "ノス ベモス アキ", "_i": 206}, {"cat": "観光・会話", "ja": "もう一度お願いします", "es": "Otra vez, por favor", "kana": "オトラ ベス ポル ファボール", "_i": 207}, {"cat": "観光・会話", "ja": "ゆっくり話してください", "es": "Hable más despacio, por favor", "kana": "アブレ マス デスパシオ ポル ファボール", "_i": 208}, {"cat": "観光・会話", "ja": "もう少しゆっくりお願いします", "es": "Un poco más despacio, por favor", "kana": "ウン ポコ マス デスパシオ ポル ファボール", "_i": 209}, {"cat": "観光・会話", "ja": "分かりません", "es": "No entiendo", "kana": "ノ エンティエンド", "_i": 210}, {"cat": "観光・会話", "ja": "分かりました", "es": "Entiendo", "kana": "エンティエンド", "_i": 211}, {"cat": "観光・会話", "ja": "分かりませんでした", "es": "No he entendido", "kana": "ノ エ エンテンディド", "_i": 212}, {"cat": "観光・会話", "ja": "スペイン語が少しだけ話せます", "es": "Hablo un poco de español", "kana": "アブロ ウン ポコ デ エスパニョール", "_i": 213}, {"cat": "観光・会話", "ja": "スペイン語を勉強しています", "es": "Estoy estudiando español", "kana": "エストイ エストゥディアンド エスパニョール", "_i": 214}, {"cat": "観光・会話", "ja": "これはスペイン語で何と言いますか？", "es": "¿Cómo se dice esto en español?", "kana": "コモ セ ディセ エスト エン エスパニョール？", "_i": 215}, {"cat": "観光・会話", "ja": "英語でもいいですか？", "es": "¿Podemos hablar en inglés?", "kana": "ポデモス アブラール エン イングレス？", "_i": 216}, {"cat": "緊急・困った時", "ja": "助けてください", "es": "¡Ayúdeme, por favor!", "kana": "アユデメ ポル ファボール", "_i": 217}, {"cat": "緊急・困った時", "ja": "警察を呼んでください", "es": "Llame a la policía, por favor", "kana": "ジャメ ア ラ ポリシア ポル ファボール", "_i": 218}, {"cat": "緊急・困った時", "ja": "救急車を呼んでください", "es": "Llame a una ambulancia, por favor", "kana": "ジャメ ア ウナ アンブランシア ポル ファボール", "_i": 219}, {"cat": "緊急・困った時", "ja": "病院はどこですか？", "es": "¿Dónde está el hospital?", "kana": "ドンデ エスタ エル オスピタル？", "_i": 220}, {"cat": "緊急・困った時", "ja": "薬局はどこですか？", "es": "¿Dónde está la farmacia?", "kana": "ドンデ エスタ ラ ファルマシア？", "_i": 221}, {"cat": "緊急・困った時", "ja": "医者が必要です", "es": "Necesito un médico", "kana": "ネセシト ウン メディコ", "_i": 222}, {"cat": "緊急・困った時", "ja": "気分が悪いです", "es": "Me encuentro mal", "kana": "メ エンクエントロ マル", "_i": 223}, {"cat": "緊急・困った時", "ja": "財布をなくしました", "es": "He perdido la cartera", "kana": "エ ペルディド ラ カルテラ", "_i": 224}, {"cat": "緊急・困った時", "ja": "スマートフォンをなくしました", "es": "He perdido el móvil", "kana": "エ ペルディド エル モビル", "_i": 225}, {"cat": "緊急・困った時", "ja": "パスポートをなくしました", "es": "He perdido el pasaporte", "kana": "エ ペルディド エル パサポルテ", "_i": 226}, {"cat": "緊急・困った時", "ja": "盗まれました", "es": "Me han robado", "kana": "メ アン ロバド", "_i": 227}, {"cat": "緊急・困った時", "ja": "警察署はどこですか？", "es": "¿Dónde está la comisaría?", "kana": "ドンデ エスタ ラ コミサリア？", "_i": 228}, {"cat": "緊急・困った時", "ja": "助けが必要です", "es": "Necesito ayuda", "kana": "ネセシト アユダ", "_i": 229}, {"cat": "緊急・困った時", "ja": "道に迷いました", "es": "Me he perdido", "kana": "メ エ ペルディド", "_i": 230}, {"cat": "緊急・困った時", "ja": "ホテルに戻りたいです", "es": "Quiero volver al hotel", "kana": "キエロ ボルベール アル オテル", "_i": 231}, {"cat": "緊急・困った時", "ja": "この住所に行きたいです", "es": "Quiero ir a esta dirección", "kana": "キエロ イル ア エスタ ディレクシオン", "_i": 232}, {"cat": "緊急・困った時", "ja": "電話を貸してもらえますか？", "es": "¿Me puede prestar un teléfono?", "kana": "メ プエデ プレスタール ウン テレフォノ？", "_i": 233}, {"cat": "緊急・困った時", "ja": "充電できますか？", "es": "¿Puedo cargar el móvil?", "kana": "プエド カルガール エル モビル？", "_i": 234}, {"cat": "緊急・困った時", "ja": "インターネットが必要です", "es": "Necesito internet", "kana": "ネセシト インテルネット", "_i": 235}, {"cat": "緊急・困った時", "ja": "ここは安全ですか？", "es": "¿Es seguro aquí?", "kana": "エス セグロ アキ？", "_i": 236}, {"cat": "緊急・困った時", "ja": "一緒に来てもらえますか？", "es": "¿Puede venir conmigo?", "kana": "プエデ ベニール コンミゴ？", "_i": 237}, {"cat": "緊急・困った時", "ja": "待ってください", "es": "Espere, por favor", "kana": "エスペレ ポル ファボール", "_i": 238}, {"cat": "緊急・困った時", "ja": "警察に連絡してください", "es": "Llame a la policía", "kana": "ジャメ ア ラ ポリシア", "_i": 239}, {"cat": "緊急・困った時", "ja": "緊急です", "es": "Es una emergencia", "kana": "エス ウナ エメルヘンシア", "_i": 240}, {"cat": "緊急・困った時", "ja": "大丈夫です", "es": "Estoy bien", "kana": "エストイ ビエン", "_i": 241}, {"cat": "緊急・困った時", "ja": "問題ありません", "es": "No hay problema", "kana": "ノ アイ プロブレマ", "_i": 242}, {"cat": "緊急・困った時", "ja": "落ち着いてください", "es": "Tranquilo, por favor", "kana": "トランキロ ポル ファボール", "_i": 243}, {"cat": "緊急・困った時", "ja": "ありがとうございます、本当に助かりました", "es": "Muchas gracias, me ha ayudado mucho", "kana": "ムーチャス グラシアス メ ア アユダド ムーチョ", "_i": 244}, {"cat": "緊急・困った時", "ja": "ここにいてください", "es": "Quédese aquí, por favor", "kana": "ケデセ アキ ポル ファボール", "_i": 245}, {"cat": "緊急・困った時", "ja": "もう大丈夫です", "es": "Ya estoy bien", "kana": "ヤ エストイ ビエン", "_i": 246}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 247}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 248}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 249}, {"cat": "追加・便利表現", "ja": "ここに書いてください", "es": "Escríbalo aquí, por favor", "kana": "エスクリバロ アキ ポル ファボール", "_i": 250}, {"cat": "追加・便利表現", "ja": "これは正しいですか？", "es": "¿Es correcto?", "kana": "エス コレクト？", "_i": 251}, {"cat": "追加・便利表現", "ja": "今ですか？", "es": "¿Ahora?", "kana": "アオラ？", "_i": 252}, {"cat": "追加・便利表現", "ja": "今日ですか？", "es": "¿Hoy?", "kana": "オイ？", "_i": 253}, {"cat": "追加・便利表現", "ja": "明日ですか？", "es": "¿Mañana?", "kana": "マニャナ？", "_i": 254}, {"cat": "追加・便利表現", "ja": "何時ですか？", "es": "¿Qué hora es?", "kana": "ケ オラ エス？", "_i": 255}, {"cat": "追加・便利表現", "ja": "どこですか？", "es": "¿Dónde está?", "kana": "ドンデ エスタ？", "_i": 256}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 257}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 258}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 259}, {"cat": "追加・便利表現", "ja": "ここに書いてください", "es": "Escríbalo aquí, por favor", "kana": "エスクリバロ アキ ポル ファボール", "_i": 260}, {"cat": "追加・便利表現", "ja": "これは正しいですか？", "es": "¿Es correcto?", "kana": "エス コレクト？", "_i": 261}, {"cat": "追加・便利表現", "ja": "今ですか？", "es": "¿Ahora?", "kana": "アオラ？", "_i": 262}, {"cat": "追加・便利表現", "ja": "今日ですか？", "es": "¿Hoy?", "kana": "オイ？", "_i": 263}, {"cat": "追加・便利表現", "ja": "明日ですか？", "es": "¿Mañana?", "kana": "マニャナ？", "_i": 264}, {"cat": "追加・便利表現", "ja": "何時ですか？", "es": "¿Qué hora es?", "kana": "ケ オラ エス？", "_i": 265}, {"cat": "追加・便利表現", "ja": "どこですか？", "es": "¿Dónde está?", "kana": "ドンデ エスタ？", "_i": 266}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 267}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 268}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 269}, {"cat": "追加・便利表現", "ja": "ここに書いてください", "es": "Escríbalo aquí, por favor", "kana": "エスクリバロ アキ ポル ファボール", "_i": 270}, {"cat": "追加・便利表現", "ja": "これは正しいですか？", "es": "¿Es correcto?", "kana": "エス コレクト？", "_i": 271}, {"cat": "追加・便利表現", "ja": "今ですか？", "es": "¿Ahora?", "kana": "アオラ？", "_i": 272}, {"cat": "追加・便利表現", "ja": "今日ですか？", "es": "¿Hoy?", "kana": "オイ？", "_i": 273}, {"cat": "追加・便利表現", "ja": "明日ですか？", "es": "¿Mañana?", "kana": "マニャナ？", "_i": 274}, {"cat": "追加・便利表現", "ja": "何時ですか？", "es": "¿Qué hora es?", "kana": "ケ オラ エス？", "_i": 275}, {"cat": "追加・便利表現", "ja": "どこですか？", "es": "¿Dónde está?", "kana": "ドンデ エスタ？", "_i": 276}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 277}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 278}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 279}, {"cat": "追加・便利表現", "ja": "ここに書いてください", "es": "Escríbalo aquí, por favor", "kana": "エスクリバロ アキ ポル ファボール", "_i": 280}, {"cat": "追加・便利表現", "ja": "これは正しいですか？", "es": "¿Es correcto?", "kana": "エス コレクト？", "_i": 281}, {"cat": "追加・便利表現", "ja": "今ですか？", "es": "¿Ahora?", "kana": "アオラ？", "_i": 282}, {"cat": "追加・便利表現", "ja": "今日ですか？", "es": "¿Hoy?", "kana": "オイ？", "_i": 283}, {"cat": "追加・便利表現", "ja": "明日ですか？", "es": "¿Mañana?", "kana": "マニャナ？", "_i": 284}, {"cat": "追加・便利表現", "ja": "何時ですか？", "es": "¿Qué hora es?", "kana": "ケ オラ エス？", "_i": 285}, {"cat": "追加・便利表現", "ja": "どこですか？", "es": "¿Dónde está?", "kana": "ドンデ エスタ？", "_i": 286}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 287}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 288}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 289}, {"cat": "追加・便利表現", "ja": "ここに書いてください", "es": "Escríbalo aquí, por favor", "kana": "エスクリバロ アキ ポル ファボール", "_i": 290}, {"cat": "追加・便利表現", "ja": "これは正しいですか？", "es": "¿Es correcto?", "kana": "エス コレクト？", "_i": 291}, {"cat": "追加・便利表現", "ja": "今ですか？", "es": "¿Ahora?", "kana": "アオラ？", "_i": 292}, {"cat": "追加・便利表現", "ja": "今日ですか？", "es": "¿Hoy?", "kana": "オイ？", "_i": 293}, {"cat": "追加・便利表現", "ja": "明日ですか？", "es": "¿Mañana?", "kana": "マニャナ？", "_i": 294}, {"cat": "追加・便利表現", "ja": "何時ですか？", "es": "¿Qué hora es?", "kana": "ケ オラ エス？", "_i": 295}, {"cat": "追加・便利表現", "ja": "どこですか？", "es": "¿Dónde está?", "kana": "ドンデ エスタ？", "_i": 296}, {"cat": "追加・便利表現", "ja": "もう一度言ってください", "es": "Repita, por favor", "kana": "レピタ ポル ファボール", "_i": 297}, {"cat": "追加・便利表現", "ja": "書いてもらえますか？", "es": "¿Puede escribirlo?", "kana": "プエデ エスクリビルロ？", "_i": 298}, {"cat": "追加・便利表現", "ja": "数字で書いてください", "es": "Escríbalo con números, por favor", "kana": "エスクリバロ コン ヌメロス ポル ファボール", "_i": 299}];
-let list=[], idx=0, showing=false, weakOnly=false;
-let weak = JSON.parse(localStorage.getItem('spanish300weak')||'[]');
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>スペイン旅行フレーズ</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;background:#f5f6f8;margin:0;color:#222}.wrap{max-width:760px;margin:auto;padding:18px}h1{font-size:24px;margin:4px 0 14px}.panel,.card{background:white;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #0001}label{font-weight:700;display:block;margin:8px 0 5px}select,button{font-size:16px;border:0;border-radius:12px;padding:12px 14px;background:#eef0f4}select{width:100%}button{cursor:pointer}.primary{background:#111;color:white}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1;min-width:130px}.tag{display:inline-block;background:#eef0f4;border-radius:999px;padding:5px 9px;font-size:13px;margin-right:5px}.ja{font-size:28px;font-weight:700;line-height:1.45;margin:24px 0}.es{font-size:24px;color:#b22222;font-weight:700;line-height:1.5}.kana{color:#666;margin-top:8px}.hidden{display:none}.fav{float:right;font-size:24px;background:none;padding:0}.small{font-size:13px;color:#666}.count{font-weight:700}
+</style>
+<style id="spain-theme">
+:root{
+  --spain-red:#c60b1e;
+  --spain-yellow:#ffc400;
+  --sand:#fff8e8;
+  --terracotta:#b94b2b;
+  --ink:#3a2a25;
+}
+body{
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255,196,0,.20) 0 70px, transparent 71px),
+    radial-gradient(circle at 88% 92%, rgba(198,11,30,.10) 0 100px, transparent 101px),
+    linear-gradient(135deg,#fffdf8 0%,var(--sand) 100%);
+  color:var(--ink);
+}
+body:before{
+  content:"";
+  display:block;
+  height:8px;
+  background:linear-gradient(to right,var(--spain-red) 0 28%,var(--spain-yellow) 28% 72%,var(--spain-red) 72% 100%);
+}
+.container{
+  max-width:760px;
+}
+header{
+  position:relative;
+  overflow:hidden;
+  border-radius:0 0 24px 24px;
+  background:linear-gradient(135deg,var(--spain-red),#a50718);
+  color:white;
+  padding:24px 20px 22px;
+  box-shadow:0 8px 24px rgba(120,20,20,.18);
+}
+header:after{
+  content:"☀";
+  position:absolute;
+  right:18px;
+  top:-8px;
+  font-size:82px;
+  line-height:1;
+  color:rgba(255,196,0,.22);
+}
+header h1, header p{position:relative;z-index:1}
+h1{
+  letter-spacing:.03em;
+}
+h1:before{
+  content:"🇪🇸 ";
+}
+.card{
+  border:2px solid rgba(198,11,30,.12);
+  border-radius:22px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 10px 28px rgba(70,35,20,.10);
+}
+button,.btn{
+  border-radius:14px;
+  border:0;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+button:active,.btn:active{
+  transform:translateY(1px);
+}
+button.primary,.btn.primary,#answerBtn{
+  background:linear-gradient(135deg,var(--spain-red),#a50718) !important;
+  color:#fff !important;
+  box-shadow:0 5px 12px rgba(198,11,30,.22);
+}
+button.secondary,.btn.secondary{
+  background:#fff4bf !important;
+  color:#7b2d1f !important;
+  border:1px solid #f0c83e;
+}
+select{
+  border:2px solid #e7b91d !important;
+  border-radius:12px !important;
+  background:#fffdf4 !important;
+}
+.level-title,.section-title{
+  color:var(--spain-red);
+}
+.badge{
+  background:var(--spain-yellow);
+  color:#5b351d;
+}
+#answer{
+  border-left:5px solid var(--spain-yellow);
+  background:#fffaf0;
+}
+</style>
 
-function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-const LEVELS={
-1:{name:"🔥 絶対覚える50",ids:[0, 1, 2, 3, 4, 92, 28, 172, 140, 59, 31, 32, 34, 37, 55, 56, 58, 62, 64, 65, 66, 67, 74, 83, 93, 99, 101, 104, 111, 130, 131, 134, 137, 141, 143, 144, 145, 146, 160, 163, 166, 170, 210, 207, 208, 213, 214, 241, 17, 5]},
-2:{name:"⭐ 次に覚える100",ids:[6, 7, 10, 11, 12, 14, 19, 20, 22, 121, 27, 33, 35, 36, 38, 39, 40, 43, 44, 45, 47, 48, 53, 57, 60, 61, 63, 73, 76, 79, 80, 81, 86, 88, 90, 94, 97, 98, 100, 107, 110, 112, 115, 118, 119, 126, 127, 128, 154, 155, 156, 158, 164, 161, 165, 167, 168, 169, 171, 174, 181, 182, 183, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 201, 202, 204, 205, 206, 211, 216, 230, 231, 232, 236, 242, 246, 229, 173, 150, 152, 153, 157, 139, 177, 178, 180, 8, 9, 13]},
-3:{name:"👍 できれば覚える150",ids:[15, 16, 18, 21, 23, 24, 25, 26, 29, 30, 41, 42, 46, 49, 50, 51, 52, 54, 68, 69, 70, 71, 72, 75, 77, 78, 82, 84, 85, 87, 89, 91, 95, 96, 102, 103, 105, 106, 108, 109, 113, 114, 116, 117, 120, 122, 123, 124, 125, 129, 132, 133, 135, 136, 138, 142, 147, 148, 149, 151, 159, 162, 175, 176, 179, 184, 185, 186, 187, 199, 200, 203, 209, 212, 215, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 233, 234, 235, 237, 238, 239, 240, 243, 244, 245, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299]}
+
+<style id="fixed-card-actions">
+/* カードをめくっても操作ボタンの位置が上下しないよう固定 */
+.card{
+  display:flex;
+  flex-direction:column;
+}
+.card .card-actions,
+.card .actions,
+.card .buttons,
+#actions{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+</style>
+
+
+<style id="stable-card-layout">
+/* 問題文の長さに関係なく、カードと操作ボタンの位置を固定 */
+.card{
+  position:relative !important;
+  box-sizing:border-box !important;
+  height:430px !important;
+  min-height:430px !important;
+  padding:16px 16px 88px !important;
+  overflow:hidden !important;
+}
+.card > .ja{
+  min-height:82px;
+  max-height:115px;
+  overflow:auto;
+  box-sizing:border-box;
+}
+.card > #answer{
+  min-height:115px;
+  max-height:145px;
+  overflow:auto;
+  box-sizing:border-box;
+}
+.card > .row:last-child{
+  position:absolute !important;
+  left:16px !important;
+  right:16px !important;
+  bottom:16px !important;
+  margin:0 !important;
+  height:56px !important;
+  display:flex !important;
+  align-items:center !important;
+}
+.card > .row:last-child button{
+  width:100% !important;
+  height:52px !important;
+  flex:1 1 auto !important;
+}
+#answer{
+  overflow:auto !important;
+}
+#replay{
+  margin-top:10px;
+}
+@media (max-width:600px){
+  .card{
+    height:430px !important;
+    min-height:430px !important;
+  }
+}
+</style>
+
+
+<style id="weak-mode-correct">
+#weak{
+  transition:all .15s ease;
+}
+#weak.weak-active{
+  background:linear-gradient(135deg,#c60b1e,#8f0716) !important;
+  color:#fff !important;
+  border:2px solid #ffc400 !important;
+  box-shadow:0 0 0 3px rgba(255,196,0,.25),0 5px 14px rgba(198,11,30,.28) !important;
+  font-weight:700 !important;
+}
+</style>
+
+
+
+
+
+<style id="title-version-style">
+.titlebar{
+  width:100%;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  box-sizing:border-box;
+  margin:0 0 14px 0;
+  padding:4px 2px 8px 2px;
+}
+.titlebar h1{
+  margin:0 !important;
+  flex:1 1 auto;
+}
+.app-version{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 auto !important;
+  margin-left:12px !important;
+  padding:5px 9px !important;
+  border-radius:999px !important;
+  background:#fff1b8 !important;
+  border:1px solid #e0a900 !important;
+  color:#8f0716 !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  font-weight:700 !important;
+  opacity:1 !important;
+  white-space:nowrap !important;
+  visibility:visible !important;
+}
+</style>
+</head><body><div class="wrap"><div class="titlebar"><h1>🇪🇸 スペイン旅行フレーズ</h1><span class="app-version">v1.0</span></div><div class="panel"><label>レベル</label><select id="level"></select><label>シチュエーション</label><select id="cat"></select><div class="row" style="margin-top:12px"><button class="primary" id="start">この条件で練習</button><button id="weak">★ 苦手だけ</button></div><p class="small" id="info"></p></div><div class="card"><button class="fav" id="fav">☆</button><div><span class="tag" id="tagL"></span><span class="tag" id="tagC"></span></div><div class="ja" id="ja">「この条件で練習」を押してください</div><div id="answer" class="hidden"><div class="es" id="es"></div><div class="kana" id="kana"></div><button id="replay" class="play">🔊 もう一度聞く</button></div><div class="row"><button id="reveal" class="primary">答えを見る</button></div></div><p class="small">※下のボタンは、日本語のみ表示されている時は「答えを見る」、答えを表示した後は「次のカード」として動作します。次のカードは、選択した<strong>同じレベル＋同じシチュエーション</strong>の中だけからランダムに出題します。★は端末内に保存されます。</p></div>
+<script>
+const data=[{"ja":"チェックインカウンターはどこですか？","es":"¿Dónde está el mostrador de facturación?","kana":"ドンデ エスタ エル モストラドール デ ファクトゥラシオン？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便はどこから出ますか？","es":"¿De dónde sale este vuelo?","kana":"デ ドンデ サレ エステ ブエロ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口は何番ですか？","es":"¿Cuál es la puerta de embarque?","kana":"クアル エス ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口はどこですか？","es":"¿Dónde está la puerta de embarque?","kana":"ドンデ エスタ ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便は遅れていますか？","es":"¿Este vuelo está retrasado?","kana":"エステ ブエロ エスタ レトラサド？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"荷物を預けたいです","es":"Quiero facturar mi equipaje","kana":"キエロ ファクトゥラール ミ エキパヘ","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"手荷物はどこですか？","es":"¿Dónde está la recogida de equipaje?","kana":"ドンデ エスタ ラ レコヒダ デ エキパヘ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"出口はどこですか？","es":"¿Dónde está la salida?","kana":"ドンデ エスタ ラ サリダ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"タクシー乗り場はどこですか？","es":"¿Dónde está la parada de taxis?","kana":"ドンデ エスタ ラ パラダ デ タクシス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"電車はどこですか？","es":"¿Dónde está el tren?","kana":"ドンデ エスタ エル トレン？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"バルセロナ市内へ行きたいです","es":"Quiero ir al centro de Barcelona","kana":"キエロ イル アル セントロ デ バルセロナ","level":"👍 できれば覚える150","cat":"空港"},{"ja":"Wi-Fiはありますか？","es":"¿Hay Wi-Fi?","kana":"アイ ワイファイ？","level":"👍 できれば覚える150","cat":"空港"},{"ja":"無料ですか？","es":"¿Es gratis?","kana":"エス グラティス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鈴木という名前で予約しています","es":"Tengo una reserva a nombre de Suzuki","kana":"テンゴ ウナ レセルバ ア ノンブレ デ スズキ","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックインしたいです","es":"Quiero hacer el check-in","kana":"キエロ アセール エル チェックイン","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックアウトしたいです","es":"Quiero hacer el check-out","kana":"キエロ アセール エル チェックアウト","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"部屋は何号室ですか？","es":"¿Cuál es el número de la habitación?","kana":"クアル エス エル ヌメロ デ ラ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"朝食は何時ですか？","es":"¿A qué hora es el desayuno?","kana":"ア ケ オラ エス エル デサユノ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"朝食はどこですか？","es":"¿Dónde está el desayuno?","kana":"ドンデ エスタ エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"朝食は含まれていますか？","es":"¿Está incluido el desayuno?","kana":"エスタ インクルイド エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"Wi-Fiのパスワードを教えてください","es":"¿Cuál es la contraseña del Wi-Fi?","kana":"クアル エス ラ コントラセニャ デル ワイファイ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"エレベーターはどこですか？","es":"¿Dónde está el ascensor?","kana":"ドンデ エスタ エル アセソール？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"部屋はどこですか？","es":"¿Dónde está mi habitación?","kana":"ドンデ エスタ ミ アビタシオン？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"荷物を預かってもらえますか？","es":"¿Pueden guardar mi equipaje?","kana":"プエデン グアルダール ミ エキパヘ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"早めにチェックインできますか？","es":"¿Podemos hacer el check-in antes?","kana":"ポデモス アセール エル チェックイン アンテス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"遅くチェックアウトできますか？","es":"¿Podemos hacer el check-out más tarde?","kana":"ポデモス アセール エル チェックアウト マス タルデ？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を変えてもらえますか？","es":"¿Podemos cambiar de habitación?","kana":"ポデモス カンビアール デ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋が少しうるさいです","es":"La habitación es un poco ruidosa","kana":"ラ アビタシオン エス ウン ポコ ルイドサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"エアコンが動きません","es":"El aire acondicionado no funciona","kana":"エル アイレ アコンディシオナド ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"暖房が動きません","es":"La calefacción no funciona","kana":"ラ カレファクシオン ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"お湯が出ません","es":"No hay agua caliente","kana":"ノ アイ アグア カリエンテ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タオルを追加でもらえますか？","es":"¿Puede traerme más toallas?","kana":"プエデ トラエルメ マス トアジャス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を掃除してください","es":"Por favor, limpie la habitación","kana":"ポル ファボール リンピエ ラ アビタシオン","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"掃除は不要です","es":"No necesitamos limpieza","kana":"ノ ネセシタモス リンピエサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鍵をなくしました","es":"He perdido la llave","kana":"エ ペルディド ラ ジャベ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"フロントは24時間ですか？","es":"¿La recepción está abierta las 24 horas?","kana":"ラ レセプシオン エスタ アビエルタ ラス ベインティクアトロ オラス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タクシーを呼んでもらえますか？","es":"¿Puede llamar a un taxi?","kana":"プエデ ジャマール ア ウン タクシ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"おすすめのレストランはありますか？","es":"¿Puede recomendarme un restaurante?","kana":"プエデ レコメンダールメ ウン レスタウランテ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"駅まで歩いて何分ですか？","es":"¿Cuántos minutos hay hasta la estación andando?","kana":"クアントス ミヌトス アイ アスタ ラ エスタシオン アンダンド？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"3人です","es":"Somos tres","kana":"ソモス トレス","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約していません","es":"No tenemos reserva","kana":"ノ テネモス レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"テーブルをお願いします","es":"Una mesa, por favor","kana":"ウナ メサ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"メニューをお願いします","es":"La carta, por favor","kana":"ラ カルタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"英語のメニューはありますか？","es":"¿Tiene la carta en inglés?","kana":"ティエネ ラ カルタ エン イングレス？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"おすすめは何ですか？","es":"¿Qué recomienda?","kana":"ケ レコメエンダ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは何ですか？","es":"¿Qué es esto?","kana":"ケ エス エスト？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは辛いですか？","es":"¿Esto es picante?","kana":"エスト エス ピカンテ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"水をください","es":"Agua, por favor","kana":"アグア ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"炭酸水をください","es":"Agua con gas, por favor","kana":"アグア コン ガス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"パンをください","es":"Pan, por favor","kana":"パン ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"もう一杯ください","es":"Otra, por favor","kana":"オトラ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"コーヒーをください","es":"Un café, por favor","kana":"ウン カフェ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"これをください","es":"Esto, por favor","kana":"エスト ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"一つください","es":"Uno, por favor","kana":"ウノ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"二つください","es":"Dos, por favor","kana":"ドス ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"少なめにしてください","es":"Un poco menos, por favor","kana":"ウン ポコ メノス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"多めにしてください","es":"Un poco más, por favor","kana":"ウン ポコ マス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"取り皿をください","es":"Un plato más, por favor","kana":"ウン プラト マス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"スプーンをください","es":"Una cuchara, por favor","kana":"ウナ クチャラ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"フォークをください","es":"Un tenedor, por favor","kana":"ウン テネドール ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"ナイフをください","es":"Un cuchillo, por favor","kana":"ウン クチージョ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"トイレはどこですか？","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バニョ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"お会計をお願いします","es":"La cuenta, por favor","kana":"ラ クエンタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"チップは含まれていますか？","es":"¿Está incluida la propina?","kana":"エスタ インクルイダ ラ プロピナ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"持ち帰れますか？","es":"¿Me lo puede poner para llevar?","kana":"メ ロ プエデ ポネール パラ ジェバール？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"とてもおいしいです","es":"Está muy rico","kana":"エスタ ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"ごちそうさまでした","es":"Muchas gracias, estaba todo muy rico","kana":"ムーチャス グラシアス エスタバ トド ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これはいくらですか？","es":"¿Cuánto cuesta esto?","kana":"クアント クエスタ エスト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"これを見せてください","es":"¿Me puede enseñar esto?","kana":"メ プエデ エンセニャール エスト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと大きいサイズはありますか？","es":"¿Tiene una talla más grande?","kana":"ティエネ ウナ タジャ マス グランデ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと小さいサイズはありますか？","es":"¿Tiene una talla más pequeña?","kana":"ティエネ ウナ タジャ マス ペケニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"別の色はありますか？","es":"¿Tiene otro color?","kana":"ティエネ オトロ コロール？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これを買います","es":"Me llevo esto","kana":"メ ジェボ エスト","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"少し考えます","es":"Voy a pensarlo","kana":"ボイ ア ペンサールロ","level":"⭐ 次に覚える100","cat":"お店"},{"ja":"もう少し安いものはありますか？","es":"¿Tiene algo más barato?","kana":"ティエネ アルゴ マス バラト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"セールですか？","es":"¿Está de oferta?","kana":"エスタ デ オフェルタ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"やすくしてもらえますか？","es":"¿Me puede hacer un precio más barato?","kana":"メ プエデ アセール ウン プレシオ マス バラト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"袋をください","es":"Una bolsa, por favor","kana":"ウナ ボルサ ポル ファボール","level":"👍 できれば覚える150","cat":"お店"},{"ja":"カードは使えますか？","es":"¿Puedo pagar con tarjeta?","kana":"プエド パガール コン タルヘタ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"現金だけですか？","es":"¿Solo efectivo?","kana":"ソロ エフェクティボ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"日本円は使えますか？","es":"¿Aceptan yenes japoneses?","kana":"アセプタン ジェネス ハポネセス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"ユーロに両替できますか？","es":"¿Puedo cambiar dinero a euros?","kana":"プエド カンビアール ディネロ ア エウロス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これはスペイン製ですか？","es":"¿Está hecho en España?","kana":"エスタ エチョ エン エスパニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"営業時間は何時までですか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"近くにスーパーはありますか？","es":"¿Hay un supermercado cerca?","kana":"アイ ウン スペルメルカド セルカ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"駅はどこですか？","es":"¿Dónde está la estación?","kana":"ドンデ エスタ ラ エスタシオン？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"バス停はどこですか？","es":"¿Dónde está la parada de autobús?","kana":"ドンデ エスタ ラ パラダ デ アウトブス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"この電車は〇〇に行きますか？","es":"¿Este tren va a ___?","kana":"エステ トレン バ ア ___？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"〇〇駅はどこですか？","es":"¿Dónde está la estación de ___?","kana":"ドンデ エスタ ラ エスタシオン デ ___？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符売り場はどこですか？","es":"¿Dónde está la taquilla?","kana":"ドンデ エスタ ラ タキージャ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符を一枚ください","es":"Un billete, por favor","kana":"ウン ビジェテ ポル ファボール","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"往復切符をください","es":"Un billete de ida y vuelta, por favor","kana":"ウン ビジェテ デ イダ イ ブエルタ ポル ファボール","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"片道です","es":"Solo ida","kana":"ソロ イダ","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"何番線ですか？","es":"¿Qué andén es?","kana":"ケ アンデン エス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に出発しますか？","es":"¿A qué hora sale?","kana":"ア ケ オラ サレ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に到着しますか？","es":"¿A qué hora llega?","kana":"ア ケ オラ ジェガ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何分かかりますか？","es":"¿Cuánto tarda?","kana":"クアント タルダ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"乗り換えが必要ですか？","es":"¿Tengo que hacer transbordo?","kana":"テンゴ ケ アセール トランスボルド？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"ここに座ってもいいですか？","es":"¿Puedo sentarme aquí?","kana":"プエド センタールメ アキ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次の駅で降ります","es":"Bajo en la próxima estación","kana":"バホ エン ラ プロキシマ エスタシオン","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次のバスはいつですか？","es":"¿Cuándo pasa el próximo autobús?","kana":"クアンド パサ エル プロキシモ アウトブス？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"このバスは空港へ行きますか？","es":"¿Este autobús va al aeropuerto?","kana":"エステ アウトブス バ アル アエロプエルト？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄はどこですか？","es":"¿Dónde está el metro?","kana":"ドンデ エスタ エル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄の入口はどこですか？","es":"¿Dónde está la entrada del metro?","kana":"ドンデ エスタ ラ エントラダ デル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"ここから歩いて行けますか？","es":"¿Se puede ir andando desde aquí?","kana":"セ プエデ イル アンダンド デスデ アキ？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"タクシーをお願いします","es":"Un taxi, por favor","kana":"ウン タクシ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"ホテルまでお願いします","es":"Al hotel, por favor","kana":"アル オテル ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"この住所までお願いします","es":"A esta dirección, por favor","kana":"ア エスタ ディレクシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"空港までお願いします","es":"Al aeropuerto, por favor","kana":"アル アエロプエルト ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"駅までお願いします","es":"A la estación, por favor","kana":"ア ラ エスタシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"この場所を知っていますか？","es":"¿Conoce este lugar?","kana":"コノセ エステ ルガール？","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"止めてください","es":"Pare aquí, por favor.","kana":"パレ アキ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"右に","es":"A la derecha","kana":"ア ラ デレチャ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"左に","es":"A la izquierda","kana":"ア ラ イスキエルダ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"まっすぐ","es":"Todo recto","kana":"トド レクト","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"近い","es":"Está cerca","kana":"エスタ セルカ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"遠い","es":"Está lejos","kana":"エスタ レホス","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"ここで待ってもらえますか？","es":"¿Puede esperarnos aquí?","kana":"プエデ エスペラールノス アキ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"何分くらいかかりますか？","es":"¿Cuánto tardamos aproximadamente?","kana":"クアント タルダモス アプロキシマダメンテ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"観光案内所はどこですか？","es":"¿Dónde está la oficina de turismo?","kana":"ドンデ エスタ ラ オフィシナ デ トゥリスモ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ここから近いですか？","es":"¿Está cerca de aquí?","kana":"エスタ セルカ デ アキ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"歩いて行けますか？","es":"¿Se puede ir andando?","kana":"セ プエデ イル アンダンド？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"どちらへ行けばいいですか？","es":"¿Por dónde tengo que ir?","kana":"ポル ドンデ テンゴ ケ イル？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"地図をもらえますか？","es":"¿Me puede dar un mapa?","kana":"メ プエデ ダール ウン マパ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"写真を撮ってもらえますか？","es":"¿Nos puede hacer una foto?","kana":"ノス プエデ アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"写真を撮ってもいいですか？","es":"¿Puedo hacer una foto?","kana":"プエド アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"ここは何という場所ですか？","es":"¿Cómo se llama este lugar?","kana":"コモ セ ジャマ エステ ルガール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"何時まで開いていますか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"予約が必要ですか？","es":"¿Es necesario reservar?","kana":"エス ネセサリオ レセルバール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語の案内はありますか？","es":"¿Hay información en japonés?","kana":"アイ インフォルマシオン エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"英語の案内はありますか？","es":"¿Hay información en inglés?","kana":"アイ インフォルマシオン エン イングレス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"オーディオガイドはありますか？","es":"¿Hay audioguía?","kana":"アイ アウディオギア？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語のオーディオガイドはありますか？","es":"¿Hay audioguía en japonés?","kana":"アイ アウディオギア エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"ここで会いましょう","es":"Nos vemos aquí","kana":"ノス ベモス アキ","level":"👍 できれば覚える150","cat":"観光"},{"ja":"もう一度お願いします","es":"Otra vez, por favor","kana":"オトラ ベス ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ゆっくり話してください","es":"Hable más despacio, por favor","kana":"アブレ マス デスパシオ ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"助けてください","es":"¡Ayúdeme, por favor!","kana":"アユデメ ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"警察を呼んでください","es":"Llame a la policía, por favor","kana":"ジャメ ア ラ ポリシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"救急車を呼んでください","es":"Llame a una ambulancia, por favor","kana":"ジャメ ア ウナ アンブランシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"病院はどこですか？","es":"¿Dónde está el hospital?","kana":"ドンデ エスタ エル オスピタル？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"薬局はどこですか？","es":"¿Dónde está la farmacia?","kana":"ドンデ エスタ ラ ファルマシア？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"医者が必要です","es":"Necesito un médico","kana":"ネセシト ウン メディコ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"気分が悪いです","es":"Me encuentro mal","kana":"メ エンクエントロ マル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"財布をなくしました","es":"He perdido la cartera","kana":"エ ペルディド ラ カルテラ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"スマートフォンをなくしました","es":"He perdido el móvil","kana":"エ ペルディド エル モビル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"パスポートをなくしました","es":"He perdido el pasaporte","kana":"エ ペルディド エル パサポルテ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"盗まれました","es":"Me han robado","kana":"メ アン ロバド","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"助けが必要です","es":"Necesito ayuda","kana":"ネセシト アユダ","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"道に迷いました","es":"Me he perdido","kana":"メ エ ペルディド","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ホテルに戻りたいです","es":"Quiero volver al hotel","kana":"キエロ ボルベール アル オテル","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"この住所に行きたいです","es":"Quiero ir a esta dirección","kana":"キエロ イル ア エスタ ディレクシオン","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ここは安全ですか？","es":"¿Es seguro aquí?","kana":"エス セグロ アキ？","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"大丈夫です","es":"Estoy bien","kana":"エストイ ビエン","level":"🔥 絶対覚える50","cat":"緊急・困った時"},{"ja":"こんにちは","es":"Hola","kana":"オラ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"おはよう","es":"Buenos días.","kana":"ブエノス ディアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"さようなら","es":"Adiós.","kana":"アディオス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"はい","es":"Sí.","kana":"スィ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"いいえ","es":"No.","kana":"ノ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ありがとう","es":"Gracias","kana":"グラシアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どういたしまして","es":"De nada.","kana":"デ ナダ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"すみませんが","es":"Perdón.","kana":"ペルドン","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ごめんなさい","es":"Lo siento.","kana":"ロ シエント","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どうぞ","es":"Por favor.","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私の名前は鈴木太郎です。","es":"Me llamo Taro Suzuki.","kana":"メ ジャモ タロウ スズキ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私は日本人です。","es":"Soy japonés.","kana":"ソイ ハポネス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"もう一度言ってください","es":"Repita, por favor","kana":"レピタ ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりました","es":"Entiendo.","kana":"エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりません","es":"No entiendo.","kana":"ノ エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"英語を話せますか","es":"¿Habla inglés?","kana":"アブラ イングレス？","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"スペイン語は分かりません","es":"No hablo español.","kana":"ノ アブロ エスパニョール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"トイレはどこですか","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バーニョ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"1","es":"uno","kana":"ウノ","level":"数字","cat":"数字"},{"ja":"2","es":"dos","kana":"ドス","level":"数字","cat":"数字"},{"ja":"3","es":"tres","kana":"トレス","level":"数字","cat":"数字"},{"ja":"4","es":"cuatro","kana":"クアトロ","level":"数字","cat":"数字"},{"ja":"5","es":"cinco","kana":"シンコ","level":"数字","cat":"数字"},{"ja":"6","es":"seis","kana":"セイス","level":"数字","cat":"数字"},{"ja":"7","es":"siete","kana":"シエテ","level":"数字","cat":"数字"},{"ja":"8","es":"ocho","kana":"オチョ","level":"数字","cat":"数字"},{"ja":"9","es":"nueve","kana":"ヌエベ","level":"数字","cat":"数字"},{"ja":"10","es":"diez","kana":"ディエス","level":"数字","cat":"数字"},{"ja":"11","es":"once","kana":"オンセ","level":"数字","cat":"数字"},{"ja":"12","es":"doce","kana":"ドセ","level":"数字","cat":"数字"},{"ja":"13","es":"trece","kana":"トレセ","level":"数字","cat":"数字"},{"ja":"14","es":"catorce","kana":"カトルセ","level":"数字","cat":"数字"},{"ja":"15","es":"quince","kana":"キンセ","level":"数字","cat":"数字"},{"ja":"16","es":"dieciséis","kana":"ディエシセイス","level":"数字","cat":"数字"},{"ja":"17","es":"diecisiete","kana":"ディエシシエテ","level":"数字","cat":"数字"},{"ja":"18","es":"dieciocho","kana":"ディエシオチョ","level":"数字","cat":"数字"},{"ja":"19","es":"diecinueve","kana":"ディエシヌエベ","level":"数字","cat":"数字"},{"ja":"20","es":"veinte","kana":"ベインテ","level":"数字","cat":"数字"},{"ja":"21","es":"veintiuno","kana":"ベインティウノ","level":"数字","cat":"数字"},{"ja":"22","es":"veintidós","kana":"ベインティドス","level":"数字","cat":"数字"},{"ja":"23","es":"veintitrés","kana":"ベインティトレス","level":"数字","cat":"数字"},{"ja":"24","es":"veinticuatro","kana":"ベインティクアトロ","level":"数字","cat":"数字"},{"ja":"25","es":"veinticinco","kana":"ベインティシンコ","level":"数字","cat":"数字"},{"ja":"30","es":"treinta","kana":"トレインタ","level":"数字","cat":"数字"},{"ja":"40","es":"cuarenta","kana":"クアレンタ","level":"数字","cat":"数字"},{"ja":"50","es":"cincuenta","kana":"シンクエンタ","level":"数字","cat":"数字"},{"ja":"100","es":"cien","kana":"シエン","level":"数字","cat":"数字"},{"ja":"200","es":"doscientos","kana":"ドスシエントス","level":"数字","cat":"数字"},{"ja":"300","es":"trescientos","kana":"トレスシエントス","level":"数字","cat":"数字"},{"ja":"1000","es":"mil","kana":"ミル","level":"数字","cat":"数字"},{"ja":"2000","es":"dos mil","kana":"ドス ミル","level":"数字","cat":"数字"},{"ja":"10000","es":"diez mil","kana":"ディエス ミル","level":"数字","cat":"数字"},{"ja":"100000","es":"cien mil","kana":"シエン ミル","level":"数字","cat":"数字"},{"ja":"1000000","es":"un millón","kana":"ウン ミジョン","level":"数字","cat":"数字"},{"ja":"見ているだけです。","es":"Solo estoy mirando.","kana":"ソロ エストイ ミランド","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"よい旅を","es":"Buen viaje.","kana":"ブエン ビアヘ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"お願いします","es":"Por favor","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"}]; const labels={"🔥 絶対覚える50":"🔥 絶対覚える 64","⭐ 次に覚える100":"⭐ 次に覚える 47","👍 できれば覚える150":"👍 できれば覚える 65","数字":"🔢 数字 36"}; const weakKey='spanishWeakV2';
+let current=null, pool=[], weakOnly=false;
+const level=document.getElementById('level'),cat=document.getElementById('cat'),ja=document.getElementById('ja'),es=document.getElementById('es'),kana=document.getElementById('kana'),answer=document.getElementById('answer'),fav=document.getElementById('fav'),info=document.getElementById('info');
+Object.keys(labels).forEach(l=>{let o=document.createElement('option');o.value=l;o.textContent=labels[l];level.appendChild(o)});
+function cats(){let l=level.value;let cs=[...new Set(data.filter(x=>x.level===l).map(x=>x.cat))];cat.innerHTML='<option value="">すべてのシチュエーション</option>'+cs.map(c=>`<option>${c}</option>`).join(''); updateInfo();}
+function updateInfo(){let l=level.value,c=cat.value;let n=data.filter(x=>x.level===l&&(!c||x.cat===c)).length;info.textContent=`該当フレーズ：${n}件`;}
+level.onchange=()=>{cats();reset();updateWeakButton();}; cat.onchange=()=>{updateInfo();reset();updateWeakButton();};
+function getWeak(){try{return JSON.parse(localStorage.getItem(weakKey)||'[]')}catch(e){return[]}}
+function setWeak(a){localStorage.setItem(weakKey,JSON.stringify(a))}
+function buildPool(onlyWeak=false){let l=level.value,c=cat.value; pool=data.filter(x=>x.level===l&&(!c||x.cat===c));if(onlyWeak){let w=getWeak();pool=pool.filter(x=>w.includes(x.ja))}}
+function next(){if(!pool.length){ja.textContent=weakOnly?'この条件で★苦手登録されたカードはありません。':'カードがありません。';answer.classList.add('hidden');return} let x=pool[Math.floor(Math.random()*pool.length)]; current=x;ja.textContent=x.ja;es.textContent=x.es;kana.textContent=x.kana;document.getElementById('tagL').textContent=labels[x.level];document.getElementById('tagC').textContent=x.cat;answer.classList.add('hidden');document.getElementById('reveal').textContent='答えを見る';fav.textContent=getWeak().includes(x.ja)?'★':'☆';}
+function speak(){if(!current||!window.speechSynthesis)return; speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(current.es);u.lang='es-ES';u.rate=.48;speechSynthesis.speak(u)}
+function updateWeakButton(){
+  const b=document.getElementById('weak');
+  if(!b)return;
+  b.classList.toggle('weak-active',weakOnly);
+  b.setAttribute('aria-pressed',weakOnly?'true':'false');
+}
+function start(only=false){weakOnly=only;buildPool(only);updateWeakButton();next();}
+document.getElementById('start').onclick=()=>start(false);
+document.getElementById('replay').onclick=()=>speak();
+document.getElementById('weak').onclick=(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  weakOnly=!weakOnly;
+  buildPool(weakOnly);
+  updateWeakButton();
 };
-let currentLevel=0;
-function startLevel(level){
-  currentLevel=level;
-  list=shuffle(LEVELS[level].ids.map(id=>data.find(x=>x._i===id)).filter(Boolean));
-  weakOnly=false; idx=0;
-  document.getElementById('home').style.display='none';
-  document.getElementById('app').style.display='block';
-  render();
-}
-function start(only){
- weakOnly=only; list=shuffle(only?data.filter((_,i)=>weak.includes(i)):data.map((x,i)=>({...x,_i:i})));
- if(only && !list.length){alert('まだ「苦手」に登録されたカードがありません。まず全部の練習から★を付けてください。');return}
- idx=0; document.getElementById('home').style.display='none';document.getElementById('app').style.display='block';render();
-}
-document.getElementById('level1Btn').addEventListener('click',()=>startLevel(1));
-document.getElementById('level2Btn').addEventListener('click',()=>startLevel(2));
-document.getElementById('level3Btn').addEventListener('click',()=>startLevel(3));
-document.getElementById('allBtn').addEventListener('click',()=>start(false));
-document.getElementById('weakBtn').addEventListener('click',()=>start(true));
-function render(){
- showing=false;let x=list[idx], orig=x._i===undefined?data.indexOf(x):x._i;
- document.getElementById('cat').textContent=x.cat;
- document.getElementById('q').textContent=x.ja;
- document.getElementById('es').textContent=x.es;
- document.getElementById('kana').textContent=x.kana;
- document.getElementById('a').classList.remove('show');
- document.getElementById('count').textContent=(idx+1)+' / '+list.length;
- document.getElementById('bar').style.width=((idx+1)/list.length*100)+'%';
- let s=document.getElementById('star');s.classList.toggle('on',weak.includes(orig));s.textContent=weak.includes(orig)?'★':'☆';
-}
-function flip(){showing=!showing;document.getElementById('a').classList.toggle('show',showing)}
-function speak(){
- let x=list[idx]; if(!x)return;
- speechSynthesis.cancel();
- let u=new SpeechSynthesisUtterance(x.es);u.lang='es-ES';u.rate=.72;u.pitch=1;
- speechSynthesis.speak(u);
-}
-function next(){idx++;if(idx>=list.length){idx=0;list=shuffle(list);alert('一周しました。順番をシャッフルしてもう一度続けます。')}render()}
-function toggleStar(){
- let x=list[idx], orig=x._i===undefined?data.indexOf(x):x._i;
- if(weak.includes(orig)) weak=weak.filter(i=>i!==orig); else weak.push(orig);
- localStorage.setItem('spanish300weak',JSON.stringify(weak));render();
-}
-function goHome(){speechSynthesis.cancel();document.getElementById('app').style.display='none';document.getElementById('home').style.display='block'}
-</script>
-</body></html>
+document.getElementById('reveal').onclick=()=>{
+  if(answer.classList.contains('hidden')){
+    answer.classList.remove('hidden');
+    document.getElementById('reveal').textContent='次のカード';
+    speak();
+  }else{
+    next();
+  }
+};fav.onclick=()=>{if(!current)return;let w=getWeak();if(w.includes(current.ja))w=w.filter(x=>x!==current.ja);else w.push(current.ja);setWeak(w);fav.textContent=w.includes(current.ja)?'★':'☆'};cats();updateWeakButton();
+</script></body></html>
