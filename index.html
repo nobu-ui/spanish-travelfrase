@@ -1,5 +1,10 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>スペイン旅行フレーズ</title><style>
 body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;background:#f5f6f8;margin:0;color:#222}.wrap{max-width:760px;margin:auto;padding:18px}h1{font-size:24px;margin:4px 0 14px}.panel,.card{background:white;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #0001}label{font-weight:700;display:block;margin:8px 0 5px}select,button{font-size:16px;border:0;border-radius:12px;padding:12px 14px;background:#eef0f4}select{width:100%}button{cursor:pointer}.primary{background:#111;color:white}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1;min-width:130px}.tag{display:inline-block;background:#eef0f4;border-radius:999px;padding:5px 9px;font-size:13px;margin-right:5px}.ja{font-size:28px;font-weight:700;line-height:1.45;margin:24px 0}.es{font-size:24px;color:#b22222;font-weight:700;line-height:1.5}.kana{color:#666;margin-top:8px}.hidden{display:none}.fav{float:right;font-size:24px;background:none;padding:0}.small{font-size:13px;color:#666}.count{font-weight:700}
+
+/* v1.2: phrase explanations open in a dedicated full-screen scrollable view */
+.answer-main{max-height:none !important;overflow:visible !important;overflow-y:visible !important}
+#answer,.card > #answer{max-height:none !important;overflow:visible !important}
+.explanation{overflow-y:auto !important;-webkit-overflow-scrolling:touch}
 </style>
 <style id="spain-theme">
 :root{
@@ -165,15 +170,33 @@ select{
 
 
 <style id="weak-mode-correct">
-#weak{
-  transition:all .15s ease;
-}
+#weak,#fav{transition:all .15s ease}
 #weak.weak-active{
   background:linear-gradient(135deg,#c60b1e,#8f0716) !important;
   color:#fff !important;
   border:2px solid #ffc400 !important;
   box-shadow:0 0 0 3px rgba(255,196,0,.25),0 5px 14px rgba(198,11,30,.28) !important;
   font-weight:700 !important;
+}
+/* Quiz card's difficult-mark control sits at the far right of the top row. */
+.quiz-top #fav{
+  float:none !important;
+  flex:0 0 auto;
+  margin-left:auto;
+  white-space:nowrap;
+  font-size:14px;
+  line-height:1.2;
+  padding:9px 11px;
+  background:#fffdf7;
+  color:#5b5148;
+  border:1px solid #cfc7b8;
+  border-radius:11px;
+}
+.quiz-top #fav.weak-marked{
+  background:#fff0ed;
+  color:#8f0716;
+  border:2px solid #c60b1e;
+  font-weight:800;
 }
 </style>
 
@@ -224,9 +247,68 @@ select{
   color:#8f0716;
 }
 </style>
-</head><body><div class="wrap"><div class="titlebar"><h1>🇪🇸 スペイン旅行フレーズ</h1><span class="app-version">v1.1</span></div><div class="panel"><label>レベル</label><select id="level"></select><label>シチュエーション</label><select id="cat"></select><div class="row" style="margin-top:12px"><button class="primary" id="start">この条件で練習</button><button id="weak">★ 苦手だけ</button></div><p class="small" id="info"></p></div><div class="card"><button class="fav" id="fav">☆</button><div><span class="tag" id="tagL"></span><span class="tag" id="tagC"></span></div><div class="small term-progress" id="termProgress"></div><div class="ja" id="ja">「この条件で練習」を押してください</div><div id="answer" class="hidden"><div class="es" id="es"></div><div class="kana" id="kana"></div><button id="replay" class="play">🔊 もう一度聞く</button></div><div class="row"><button id="reveal" class="primary">答えを見る</button></div></div><p class="small">※同じ条件のフレーズは重複なしで1回ずつ出題され、すべて出題すると1ターム終了です。次のタームでは順番をシャッフルして再び全件を1回ずつ出題します。「★苦手だけ」では、その条件内の苦手フレーズだけが対象です。</p></div>
+
+<style id="v12-screens-and-explanations">
+.hidden{display:none !important}
+#setupScreen,#quizScreen{max-width:760px;margin:0 auto}
+#setupScreen .panel{margin-top:12px}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 10px}
+#exitQuiz{font-size:14px;padding:10px 12px;flex:0 0 auto}
+#quizCondition{text-align:right;max-width:none;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.word-underlines{display:flex;flex-wrap:wrap;gap:7px 8px;margin:7px 0 10px;line-height:1.8;font-size:14px}
+.word-chip{display:inline-flex;flex-direction:column;align-items:center;white-space:pre-wrap;line-height:1.45}
+.word-chip .under{display:block;width:100%;height:3px;border-radius:3px;margin-top:3px;background:var(--chip-color,#c60b1e)}
+.word-chip .word{font-weight:600}
+.ja-word-chip{display:inline-block;white-space:pre-wrap;border-bottom:3px solid var(--chip-color,#c60b1e);padding-bottom:1px;margin-right:3px;line-height:1.5}
+.explanation-wrap{margin-top:12px;border:1px solid #f0d98a;border-radius:12px;background:#fffdf6;overflow:hidden}
+.explanation-heading{font-weight:800;color:#8f0716;background:#fff2bd;padding:8px 10px;font-size:14px}
+.explanation{padding:10px 12px;max-height:155px;overflow-y:auto;-webkit-overflow-scrolling:touch;line-height:1.65;font-size:14px;white-space:normal}
+.answer-main{max-height:none;overflow:visible;padding-right:3px;flex:0 0 auto}
+#answer{display:flex;flex-direction:column;gap:8px;max-height:none;overflow:visible !important}
+#answer.hidden{display:none !important}
+#answer .explanation-wrap{flex:0 0 auto;margin-top:0}
+.explanation p{margin:0 0 9px}.explanation ul{margin:4px 0 10px;padding-left:20px}.explanation strong{color:#a20b1c}
+.card > #answer{max-height:none !important;min-height:0 !important;overflow:visible !important;padding-right:3px}
+#answer .es{margin-bottom:3px}
+/* Make the Spanish answer easier to read while preserving the colored semantic groups. */
+#answer .word-chip .word{font-size:20px;line-height:1.35}
+/* Keep the Spanish answer in one place: show the color-coded underlined version only. */
+#answer .answer-main > #es{display:none !important}
+.card{height: min(680px, calc(100dvh - 125px)) !important;min-height:420px !important;padding-bottom:78px !important;}
+.card > .ja{min-height:65px;max-height:105px}
+.card > .row:last-child{bottom:12px !important}
+@media(max-width:600px){.wrap{padding:10px}.titlebar{padding-top:3px}.card{height:calc(100dvh - 135px) !important;min-height:400px !important;padding:13px 13px 76px !important}.card > .ja{font-size:26px;min-height:65px;max-height:95px}.explanation{max-height:125px;font-size:13px}.quiz-top{margin-top:4px}}
+.explanation-open{display:block;width:100%;margin-top:12px;padding:12px 14px;border:1px solid #e6c75b;border-radius:12px;background:#fff4c7;color:#7e111b;font-size:15px;font-weight:800;text-align:left;cursor:pointer}
+.explanation-open::after{content:'↗';float:right;font-size:18px}
+.explanation-modal{position:fixed;inset:0;z-index:9999;background:#fffdf8;color:#2e2b28;display:flex;flex-direction:column;width:100%;height:100%;height:100dvh;overflow:hidden}
+.explanation-modal.hidden{display:none !important}
+.explanation-modal-header{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left));background:#fff2bd;border-bottom:1px solid #ead58d}
+.explanation-modal-eyebrow{font-size:10px;letter-spacing:1.4px;font-weight:800;color:#9b1c27;margin-bottom:4px}
+.explanation-modal-header h2{font-size:20px;line-height:1.3;margin:0;color:#8f0716}
+.explanation-modal-phrase{font-size:14px;font-weight:700;margin-top:6px;line-height:1.45;overflow-wrap:anywhere}
+.explanation-close{flex:0 0 auto;border:1px solid #d6b85a;border-radius:10px;background:#fffdf5;color:#6e1720;padding:10px 12px;font-size:13px;font-weight:700}
+.explanation-modal-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:18px 18px 24px;line-height:1.8;font-size:15px;overflow-wrap:anywhere}
+.explanation-modal-body p{margin:0 0 12px}.explanation-modal-body p strong{display:inline-block;color:#a20b1c;margin-top:2px}.explanation-modal-body em{font-style:normal;color:#245b7a;font-weight:600}
+.explanation-modal-footer{flex:0 0 auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eee2c5}.explanation-modal-footer button{width:100%;padding:13px}
+@media(min-width:760px){.explanation-modal{inset:3vh auto 3vh 50%;transform:translateX(-50%);width:min(760px,94vw);height:94vh;border-radius:18px;box-shadow:0 12px 55px #0004;border:1px solid #eadfbf}.explanation-modal-header{border-radius:18px 18px 0 0}}
+</style>
+</head><body><div class="wrap"><div class="titlebar"><h1>スペイン旅行フレーズ</h1><span class="app-version">v1.2</span></div>
+<div id="setupScreen">
+  <div class="panel"><label>レベル</label><select id="level"></select><label>シチュエーション</label><select id="cat"></select><div class="row" style="margin-top:12px"><button class="primary" id="start">この条件で練習</button><button id="weak">□ 苦手だけ</button></div><p class="small" id="info"></p></div>
+  <p class="small">※同じ条件のフレーズは重複なしで1回ずつ出題され、すべて出題すると1ターム終了です。次のタームでは順番をシャッフルして再び全件を1回ずつ出題します。「□ 苦手だけ」では、その条件内の苦手フレーズだけが対象です。</p>
+</div>
+<div id="quizScreen" class="hidden">
+  <div class="quiz-top"><button id="exitQuiz" class="secondary">← 練習を終了する</button><button class="fav" id="fav" type="button" aria-pressed="false">□ 苦手です</button></div>
+  <div class="card"><div><span class="tag" id="tagL"></span><span class="tag" id="tagC"></span></div><div class="small term-progress" id="termProgress"></div><div class="ja" id="ja">問題を準備しています</div><div id="answer" class="hidden"><div class="answer-main"><div id="es" class="es"></div><div id="esUnderline" class="word-underlines"></div><div class="kana" id="kana"></div><button id="replay" class="play">🔊 もう一度聞く</button></div><button id="openExplanation" class="explanation-open" type="button">💡 ことばの解説を読む</button><div id="explanation" class="hidden"></div></div><div class="row"><button id="reveal" class="primary">答えを見る</button></div></div>
+</div>
+</div>
+<div id="explanationModal" class="explanation-modal hidden" role="dialog" aria-modal="true" aria-labelledby="explanationModalTitle">
+  <div class="explanation-modal-header"><div><div class="explanation-modal-eyebrow">SPANISH TRAVEL PHRASES</div><h2 id="explanationModalTitle">💡 ことばの解説</h2><div id="explanationModalPhrase" class="explanation-modal-phrase"></div></div><button id="closeExplanation" class="explanation-close" type="button" aria-label="解説を閉じる">✕ 閉じる</button></div>
+  <div id="explanationModalBody" class="explanation-modal-body"></div>
+  <div class="explanation-modal-footer"><button id="closeExplanationBottom" class="primary" type="button">カードに戻る</button></div>
+</div>
 <script>
-const data=[{"ja":"チェックインカウンターはどこですか？","es":"¿Dónde está el mostrador de facturación?","kana":"ドンデ エスタ エル モストラドール デ ファクトゥラシオン？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便はどこから出ますか？","es":"¿De dónde sale este vuelo?","kana":"デ ドンデ サレ エステ ブエロ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口は何番ですか？","es":"¿Cuál es la puerta de embarque?","kana":"クアル エス ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口はどこですか？","es":"¿Dónde está la puerta de embarque?","kana":"ドンデ エスタ ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便は遅れていますか？","es":"¿Este vuelo está retrasado?","kana":"エステ ブエロ エスタ レトラサド？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"荷物を預けたいです","es":"Quiero facturar mi equipaje","kana":"キエロ ファクトゥラール ミ エキパヘ","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"手荷物はどこですか？","es":"¿Dónde está la recogida de equipaje?","kana":"ドンデ エスタ ラ レコヒダ デ エキパヘ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"出口はどこですか？","es":"¿Dónde está la salida?","kana":"ドンデ エスタ ラ サリダ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"タクシー乗り場はどこですか？","es":"¿Dónde está la parada de taxis?","kana":"ドンデ エスタ ラ パラダ デ タクシス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"電車はどこですか？","es":"¿Dónde está el tren?","kana":"ドンデ エスタ エル トレン？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"バルセロナ市内へ行きたいです","es":"Quiero ir al centro de Barcelona","kana":"キエロ イル アル セントロ デ バルセロナ","level":"👍 できれば覚える150","cat":"空港"},{"ja":"Wi-Fiはありますか？","es":"¿Hay Wi-Fi?","kana":"アイ ワイファイ？","level":"👍 できれば覚える150","cat":"空港"},{"ja":"無料ですか？","es":"¿Es gratis?","kana":"エス グラティス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鈴木という名前で予約しています","es":"Tengo una reserva a nombre de Suzuki","kana":"テンゴ ウナ レセルバ ア ノンブレ デ スズキ","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックインしたいです","es":"Quiero hacer el check-in","kana":"キエロ アセール エル チェックイン","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックアウトしたいです","es":"Quiero hacer el check-out","kana":"キエロ アセール エル チェックアウト","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"部屋は何号室ですか？","es":"¿Cuál es el número de la habitación?","kana":"クアル エス エル ヌメロ デ ラ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"朝食は何時ですか？","es":"¿A qué hora es el desayuno?","kana":"ア ケ オラ エス エル デサユノ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"朝食はどこですか？","es":"¿Dónde está el desayuno?","kana":"ドンデ エスタ エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"朝食は含まれていますか？","es":"¿Está incluido el desayuno?","kana":"エスタ インクルイド エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"Wi-Fiのパスワードを教えてください","es":"¿Cuál es la contraseña del Wi-Fi?","kana":"クアル エス ラ コントラセニャ デル ワイファイ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"エレベーターはどこですか？","es":"¿Dónde está el ascensor?","kana":"ドンデ エスタ エル アセソール？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"部屋はどこですか？","es":"¿Dónde está mi habitación?","kana":"ドンデ エスタ ミ アビタシオン？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"荷物を預かってもらえますか？","es":"¿Pueden guardar mi equipaje?","kana":"プエデン グアルダール ミ エキパヘ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"早めにチェックインできますか？","es":"¿Podemos hacer el check-in antes?","kana":"ポデモス アセール エル チェックイン アンテス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"遅くチェックアウトできますか？","es":"¿Podemos hacer el check-out más tarde?","kana":"ポデモス アセール エル チェックアウト マス タルデ？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を変えてもらえますか？","es":"¿Podemos cambiar de habitación?","kana":"ポデモス カンビアール デ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋が少しうるさいです","es":"La habitación es un poco ruidosa","kana":"ラ アビタシオン エス ウン ポコ ルイドサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"エアコンが動きません","es":"El aire acondicionado no funciona","kana":"エル アイレ アコンディシオナド ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"暖房が動きません","es":"La calefacción no funciona","kana":"ラ カレファクシオン ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"お湯が出ません","es":"No hay agua caliente","kana":"ノ アイ アグア カリエンテ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タオルを追加でもらえますか？","es":"¿Puede traerme más toallas?","kana":"プエデ トラエルメ マス トアジャス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を掃除してください","es":"Por favor, limpie la habitación","kana":"ポル ファボール リンピエ ラ アビタシオン","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"掃除は不要です","es":"No necesitamos limpieza","kana":"ノ ネセシタモス リンピエサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鍵をなくしました","es":"He perdido la llave","kana":"エ ペルディド ラ ジャベ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"フロントは24時間ですか？","es":"¿La recepción está abierta las 24 horas?","kana":"ラ レセプシオン エスタ アビエルタ ラス ベインティクアトロ オラス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タクシーを呼んでもらえますか？","es":"¿Puede llamar a un taxi?","kana":"プエデ ジャマール ア ウン タクシ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"おすすめのレストランはありますか？","es":"¿Puede recomendarme un restaurante?","kana":"プエデ レコメンダールメ ウン レスタウランテ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"駅まで歩いて何分ですか？","es":"¿Cuántos minutos hay hasta la estación andando?","kana":"クアントス ミヌトス アイ アスタ ラ エスタシオン アンダンド？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"3人です","es":"Somos tres","kana":"ソモス トレス","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約していません","es":"No tenemos reserva","kana":"ノ テネモス レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"テーブルをお願いします","es":"Una mesa, por favor","kana":"ウナ メサ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"メニューをお願いします","es":"La carta, por favor","kana":"ラ カルタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"英語のメニューはありますか？","es":"¿Tiene la carta en inglés?","kana":"ティエネ ラ カルタ エン イングレス？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"おすすめは何ですか？","es":"¿Qué recomienda?","kana":"ケ レコメエンダ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは何ですか？","es":"¿Qué es esto?","kana":"ケ エス エスト？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは辛いですか？","es":"¿Esto es picante?","kana":"エスト エス ピカンテ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"水をください","es":"Agua, por favor","kana":"アグア ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"炭酸水をください","es":"Agua con gas, por favor","kana":"アグア コン ガス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"パンをください","es":"Pan, por favor","kana":"パン ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"もう一杯ください","es":"Otra, por favor","kana":"オトラ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"コーヒーをください","es":"Un café, por favor","kana":"ウン カフェ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"これをください","es":"Esto, por favor","kana":"エスト ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"一つください","es":"Uno, por favor","kana":"ウノ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"二つください","es":"Dos, por favor","kana":"ドス ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"少なめにしてください","es":"Un poco menos, por favor","kana":"ウン ポコ メノス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"多めにしてください","es":"Un poco más, por favor","kana":"ウン ポコ マス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"取り皿をください","es":"Un plato más, por favor","kana":"ウン プラト マス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"スプーンをください","es":"Una cuchara, por favor","kana":"ウナ クチャラ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"フォークをください","es":"Un tenedor, por favor","kana":"ウン テネドール ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"ナイフをください","es":"Un cuchillo, por favor","kana":"ウン クチージョ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"トイレはどこですか？","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バニョ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"お会計をお願いします","es":"La cuenta, por favor","kana":"ラ クエンタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"チップは含まれていますか？","es":"¿Está incluida la propina?","kana":"エスタ インクルイダ ラ プロピナ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"持ち帰れますか？","es":"¿Me lo puede poner para llevar?","kana":"メ ロ プエデ ポネール パラ ジェバール？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"とてもおいしいです","es":"Está muy rico","kana":"エスタ ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"ごちそうさまでした","es":"Muchas gracias, estaba todo muy rico","kana":"ムーチャス グラシアス エスタバ トド ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これはいくらですか？","es":"¿Cuánto cuesta esto?","kana":"クアント クエスタ エスト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"これを見せてください","es":"¿Me puede enseñar esto?","kana":"メ プエデ エンセニャール エスト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと大きいサイズはありますか？","es":"¿Tiene una talla más grande?","kana":"ティエネ ウナ タジャ マス グランデ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと小さいサイズはありますか？","es":"¿Tiene una talla más pequeña?","kana":"ティエネ ウナ タジャ マス ペケニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"別の色はありますか？","es":"¿Tiene otro color?","kana":"ティエネ オトロ コロール？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これを買います","es":"Me llevo esto","kana":"メ ジェボ エスト","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"少し考えます","es":"Voy a pensarlo","kana":"ボイ ア ペンサールロ","level":"⭐ 次に覚える100","cat":"お店"},{"ja":"もう少し安いものはありますか？","es":"¿Tiene algo más barato?","kana":"ティエネ アルゴ マス バラト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"セールですか？","es":"¿Está de oferta?","kana":"エスタ デ オフェルタ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"やすくしてもらえますか？","es":"¿Me puede hacer un precio más barato?","kana":"メ プエデ アセール ウン プレシオ マス バラト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"袋をください","es":"Una bolsa, por favor","kana":"ウナ ボルサ ポル ファボール","level":"👍 できれば覚える150","cat":"お店"},{"ja":"カードは使えますか？","es":"¿Puedo pagar con tarjeta?","kana":"プエド パガール コン タルヘタ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"現金だけですか？","es":"¿Solo efectivo?","kana":"ソロ エフェクティボ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"日本円は使えますか？","es":"¿Aceptan yenes japoneses?","kana":"アセプタン ジェネス ハポネセス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"ユーロに両替できますか？","es":"¿Puedo cambiar dinero a euros?","kana":"プエド カンビアール ディネロ ア エウロス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これはスペイン製ですか？","es":"¿Está hecho en España?","kana":"エスタ エチョ エン エスパニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"営業時間は何時までですか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"近くにスーパーはありますか？","es":"¿Hay un supermercado cerca?","kana":"アイ ウン スペルメルカド セルカ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"駅はどこですか？","es":"¿Dónde está la estación?","kana":"ドンデ エスタ ラ エスタシオン？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"バス停はどこですか？","es":"¿Dónde está la parada de autobús?","kana":"ドンデ エスタ ラ パラダ デ アウトブス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"この電車は〇〇に行きますか？","es":"¿Este tren va a ___?","kana":"エステ トレン バ ア ___？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"〇〇駅はどこですか？","es":"¿Dónde está la estación de ___?","kana":"ドンデ エスタ ラ エスタシオン デ ___？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符売り場はどこですか？","es":"¿Dónde está la taquilla?","kana":"ドンデ エスタ ラ タキージャ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符を一枚ください","es":"Un billete, por favor","kana":"ウン ビジェテ ポル ファボール","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"往復切符をください","es":"Un billete de ida y vuelta, por favor","kana":"ウン ビジェテ デ イダ イ ブエルタ ポル ファボール","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"片道です","es":"Solo ida","kana":"ソロ イダ","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"何番線ですか？","es":"¿Qué andén es?","kana":"ケ アンデン エス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に出発しますか？","es":"¿A qué hora sale?","kana":"ア ケ オラ サレ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に到着しますか？","es":"¿A qué hora llega?","kana":"ア ケ オラ ジェガ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何分かかりますか？","es":"¿Cuánto tarda?","kana":"クアント タルダ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"乗り換えが必要ですか？","es":"¿Tengo que hacer transbordo?","kana":"テンゴ ケ アセール トランスボルド？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"ここに座ってもいいですか？","es":"¿Puedo sentarme aquí?","kana":"プエド センタールメ アキ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次の駅で降ります","es":"Bajo en la próxima estación","kana":"バホ エン ラ プロキシマ エスタシオン","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次のバスはいつですか？","es":"¿Cuándo pasa el próximo autobús?","kana":"クアンド パサ エル プロキシモ アウトブス？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"このバスは空港へ行きますか？","es":"¿Este autobús va al aeropuerto?","kana":"エステ アウトブス バ アル アエロプエルト？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄はどこですか？","es":"¿Dónde está el metro?","kana":"ドンデ エスタ エル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄の入口はどこですか？","es":"¿Dónde está la entrada del metro?","kana":"ドンデ エスタ ラ エントラダ デル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"ここから歩いて行けますか？","es":"¿Se puede ir andando desde aquí?","kana":"セ プエデ イル アンダンド デスデ アキ？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"タクシーをお願いします","es":"Un taxi, por favor","kana":"ウン タクシ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"ホテルまでお願いします","es":"Al hotel, por favor","kana":"アル オテル ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"この住所までお願いします","es":"A esta dirección, por favor","kana":"ア エスタ ディレクシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"空港までお願いします","es":"Al aeropuerto, por favor","kana":"アル アエロプエルト ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"駅までお願いします","es":"A la estación, por favor","kana":"ア ラ エスタシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"この場所を知っていますか？","es":"¿Conoce este lugar?","kana":"コノセ エステ ルガール？","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"止めてください","es":"Pare aquí, por favor.","kana":"パレ アキ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"右に","es":"A la derecha","kana":"ア ラ デレチャ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"左に","es":"A la izquierda","kana":"ア ラ イスキエルダ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"まっすぐ","es":"Todo recto","kana":"トド レクト","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"近い","es":"Está cerca","kana":"エスタ セルカ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"遠い","es":"Está lejos","kana":"エスタ レホス","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"ここで待ってもらえますか？","es":"¿Puede esperarnos aquí?","kana":"プエデ エスペラールノス アキ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"何分くらいかかりますか？","es":"¿Cuánto tardamos aproximadamente?","kana":"クアント タルダモス アプロキシマダメンテ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"観光案内所はどこですか？","es":"¿Dónde está la oficina de turismo?","kana":"ドンデ エスタ ラ オフィシナ デ トゥリスモ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ここから近いですか？","es":"¿Está cerca de aquí?","kana":"エスタ セルカ デ アキ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"歩いて行けますか？","es":"¿Se puede ir andando?","kana":"セ プエデ イル アンダンド？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"どちらへ行けばいいですか？","es":"¿Por dónde tengo que ir?","kana":"ポル ドンデ テンゴ ケ イル？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"地図をもらえますか？","es":"¿Me puede dar un mapa?","kana":"メ プエデ ダール ウン マパ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"写真を撮ってもらえますか？","es":"¿Nos puede hacer una foto?","kana":"ノス プエデ アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"写真を撮ってもいいですか？","es":"¿Puedo hacer una foto?","kana":"プエド アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"ここは何という場所ですか？","es":"¿Cómo se llama este lugar?","kana":"コモ セ ジャマ エステ ルガール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"何時まで開いていますか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"予約が必要ですか？","es":"¿Es necesario reservar?","kana":"エス ネセサリオ レセルバール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語の案内はありますか？","es":"¿Hay información en japonés?","kana":"アイ インフォルマシオン エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"英語の案内はありますか？","es":"¿Hay información en inglés?","kana":"アイ インフォルマシオン エン イングレス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"オーディオガイドはありますか？","es":"¿Hay audioguía?","kana":"アイ アウディオギア？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語のオーディオガイドはありますか？","es":"¿Hay audioguía en japonés?","kana":"アイ アウディオギア エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"ここで会いましょう","es":"Nos vemos aquí","kana":"ノス ベモス アキ","level":"👍 できれば覚える150","cat":"観光"},{"ja":"もう一度お願いします","es":"Otra vez, por favor","kana":"オトラ ベス ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ゆっくり話してください","es":"Hable más despacio, por favor","kana":"アブレ マス デスパシオ ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"助けてください","es":"¡Ayúdeme, por favor!","kana":"アユデメ ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"警察を呼んでください","es":"Llame a la policía, por favor","kana":"ジャメ ア ラ ポリシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"救急車を呼んでください","es":"Llame a una ambulancia, por favor","kana":"ジャメ ア ウナ アンブランシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"病院はどこですか？","es":"¿Dónde está el hospital?","kana":"ドンデ エスタ エル オスピタル？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"薬局はどこですか？","es":"¿Dónde está la farmacia?","kana":"ドンデ エスタ ラ ファルマシア？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"医者が必要です","es":"Necesito un médico","kana":"ネセシト ウン メディコ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"気分が悪いです","es":"Me encuentro mal","kana":"メ エンクエントロ マル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"財布をなくしました","es":"He perdido la cartera","kana":"エ ペルディド ラ カルテラ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"スマートフォンをなくしました","es":"He perdido el móvil","kana":"エ ペルディド エル モビル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"パスポートをなくしました","es":"He perdido el pasaporte","kana":"エ ペルディド エル パサポルテ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"盗まれました","es":"Me han robado","kana":"メ アン ロバド","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"助けが必要です","es":"Necesito ayuda","kana":"ネセシト アユダ","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"道に迷いました","es":"Me he perdido","kana":"メ エ ペルディド","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ホテルに戻りたいです","es":"Quiero volver al hotel","kana":"キエロ ボルベール アル オテル","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"この住所に行きたいです","es":"Quiero ir a esta dirección","kana":"キエロ イル ア エスタ ディレクシオン","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ここは安全ですか？","es":"¿Es seguro aquí?","kana":"エス セグロ アキ？","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"大丈夫です","es":"Estoy bien","kana":"エストイ ビエン","level":"🔥 絶対覚える50","cat":"緊急・困った時"},{"ja":"こんにちは","es":"Hola","kana":"オラ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"おはよう","es":"Buenos días.","kana":"ブエノス ディアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"さようなら","es":"Adiós.","kana":"アディオス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"はい","es":"Sí.","kana":"スィ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"いいえ","es":"No.","kana":"ノ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ありがとう","es":"Gracias","kana":"グラシアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どういたしまして","es":"De nada.","kana":"デ ナダ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"すみませんが","es":"Perdón.","kana":"ペルドン","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ごめんなさい","es":"Lo siento.","kana":"ロ シエント","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どうぞ","es":"Por favor.","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私の名前は鈴木太郎です。","es":"Me llamo Taro Suzuki.","kana":"メ ジャモ タロウ スズキ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私は日本人です。","es":"Soy japonés.","kana":"ソイ ハポネス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"もう一度言ってください","es":"Repita, por favor","kana":"レピタ ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりました","es":"Entiendo.","kana":"エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりません","es":"No entiendo.","kana":"ノ エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"英語を話せますか","es":"¿Habla inglés?","kana":"アブラ イングレス？","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"スペイン語は分かりません","es":"No hablo español.","kana":"ノ アブロ エスパニョール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"トイレはどこですか","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バーニョ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"1","es":"uno","kana":"ウノ","level":"数字","cat":"数字"},{"ja":"2","es":"dos","kana":"ドス","level":"数字","cat":"数字"},{"ja":"3","es":"tres","kana":"トレス","level":"数字","cat":"数字"},{"ja":"4","es":"cuatro","kana":"クアトロ","level":"数字","cat":"数字"},{"ja":"5","es":"cinco","kana":"シンコ","level":"数字","cat":"数字"},{"ja":"6","es":"seis","kana":"セイス","level":"数字","cat":"数字"},{"ja":"7","es":"siete","kana":"シエテ","level":"数字","cat":"数字"},{"ja":"8","es":"ocho","kana":"オチョ","level":"数字","cat":"数字"},{"ja":"9","es":"nueve","kana":"ヌエベ","level":"数字","cat":"数字"},{"ja":"10","es":"diez","kana":"ディエス","level":"数字","cat":"数字"},{"ja":"11","es":"once","kana":"オンセ","level":"数字","cat":"数字"},{"ja":"12","es":"doce","kana":"ドセ","level":"数字","cat":"数字"},{"ja":"13","es":"trece","kana":"トレセ","level":"数字","cat":"数字"},{"ja":"14","es":"catorce","kana":"カトルセ","level":"数字","cat":"数字"},{"ja":"15","es":"quince","kana":"キンセ","level":"数字","cat":"数字"},{"ja":"16","es":"dieciséis","kana":"ディエシセイス","level":"数字","cat":"数字"},{"ja":"17","es":"diecisiete","kana":"ディエシシエテ","level":"数字","cat":"数字"},{"ja":"18","es":"dieciocho","kana":"ディエシオチョ","level":"数字","cat":"数字"},{"ja":"19","es":"diecinueve","kana":"ディエシヌエベ","level":"数字","cat":"数字"},{"ja":"20","es":"veinte","kana":"ベインテ","level":"数字","cat":"数字"},{"ja":"21","es":"veintiuno","kana":"ベインティウノ","level":"数字","cat":"数字"},{"ja":"22","es":"veintidós","kana":"ベインティドス","level":"数字","cat":"数字"},{"ja":"23","es":"veintitrés","kana":"ベインティトレス","level":"数字","cat":"数字"},{"ja":"24","es":"veinticuatro","kana":"ベインティクアトロ","level":"数字","cat":"数字"},{"ja":"25","es":"veinticinco","kana":"ベインティシンコ","level":"数字","cat":"数字"},{"ja":"30","es":"treinta","kana":"トレインタ","level":"数字","cat":"数字"},{"ja":"40","es":"cuarenta","kana":"クアレンタ","level":"数字","cat":"数字"},{"ja":"50","es":"cincuenta","kana":"シンクエンタ","level":"数字","cat":"数字"},{"ja":"100","es":"cien","kana":"シエン","level":"数字","cat":"数字"},{"ja":"200","es":"doscientos","kana":"ドスシエントス","level":"数字","cat":"数字"},{"ja":"300","es":"trescientos","kana":"トレスシエントス","level":"数字","cat":"数字"},{"ja":"1000","es":"mil","kana":"ミル","level":"数字","cat":"数字"},{"ja":"2000","es":"dos mil","kana":"ドス ミル","level":"数字","cat":"数字"},{"ja":"10000","es":"diez mil","kana":"ディエス ミル","level":"数字","cat":"数字"},{"ja":"100000","es":"cien mil","kana":"シエン ミル","level":"数字","cat":"数字"},{"ja":"1000000","es":"un millón","kana":"ウン ミジョン","level":"数字","cat":"数字"},{"ja":"見ているだけです。","es":"Solo estoy mirando.","kana":"ソロ エストイ ミランド","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"よい旅を","es":"Buen viaje.","kana":"ブエン ビアヘ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"お願いします","es":"Por favor","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"}];
+const data=[{"ja":"チェックインカウンターはどこですか？","es":"¿Dónde está el mostrador de facturación?","kana":"ドンデ エスタ エル モストラドール デ ファクトゥラシオン？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便はどこから出ますか？","es":"¿De dónde sale este vuelo?","kana":"デ ドンデ サレ エステ ブエロ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口は何番ですか？","es":"¿Cuál es la puerta de embarque?","kana":"クアル エス ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"搭乗口はどこですか？","es":"¿Dónde está la puerta de embarque?","kana":"ドンデ エスタ ラ プエルタ デ エンバルケ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"この便は遅れていますか？","es":"¿Este vuelo está retrasado?","kana":"エステ ブエロ エスタ レトラサド？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"荷物を預けたいです","es":"Quiero facturar mi equipaje","kana":"キエロ ファクトゥラール ミ エキパヘ","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"手荷物受取所はどこですか？","es":"¿Dónde está la recogida de equipaje?","kana":"ドンデ エスタ ラ レコヒダ デ エキパヘ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"出口はどこですか？","es":"¿Dónde está la salida?","kana":"ドンデ エスタ ラ サリダ？","level":"⭐ 次に覚える100","cat":"空港"},{"ja":"タクシー乗り場はどこですか？","es":"¿Dónde está la parada de taxis?","kana":"ドンデ エスタ ラ パラダ デ タクシス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"電車はどこですか？","es":"¿Dónde está el tren?","kana":"ドンデ エスタ エル トレン？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"バルセロナ市内へ行きたいです","es":"Quiero ir al centro de Barcelona","kana":"キエロ イル アル セントロ デ バルセロナ","level":"👍 できれば覚える150","cat":"空港"},{"ja":"Wi-Fiはありますか？","es":"¿Hay Wi-Fi?","kana":"アイ ワイファイ？","level":"👍 できれば覚える150","cat":"空港"},{"ja":"無料ですか？","es":"¿Es gratis?","kana":"エス グラティス？","level":"🔥 絶対覚える50","cat":"空港"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鈴木という名前で予約しています","es":"Tengo una reserva a nombre de Suzuki","kana":"テンゴ ウナ レセルバ ア ノンブレ デ スズキ","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックインしたいです","es":"Quiero hacer el check-in","kana":"キエロ アセール エル チェックイン","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"チェックアウトしたいです","es":"Quiero hacer el check-out","kana":"キエロ アセール エル チェックアウト","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"部屋は何号室ですか？","es":"¿Cuál es el número de la habitación?","kana":"クアル エス エル ヌメロ デ ラ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"朝食は何時ですか？","es":"¿A qué hora es el desayuno?","kana":"ア ケ オラ エス エル デサユノ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"朝食会場はどこですか？","es":"¿Dónde está el desayuno?","kana":"ドンデ エスタ エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"朝食は含まれていますか？","es":"¿Está incluido el desayuno?","kana":"エスタ インクルイド エル デサユノ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"Wi-Fiのパスワードを教えてください","es":"¿Cuál es la contraseña del Wi-Fi?","kana":"クアル エス ラ コントラセニャ デル ワイファイ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"エレベーターはどこですか？","es":"¿Dónde está el ascensor?","kana":"ドンデ エスタ エル アセソール？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"私の部屋はどこですか？","es":"¿Dónde está mi habitación?","kana":"ドンデ エスタ ミ アビタシオン？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"荷物を預かってもらえますか？","es":"¿Pueden guardar mi equipaje?","kana":"プエデン グアルダール ミ エキパヘ？","level":"⭐ 次に覚える100","cat":"ホテル"},{"ja":"早めにチェックインできますか？","es":"¿Podemos hacer el check-in antes?","kana":"ポデモス アセール エル チェックイン アンテス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"遅くチェックアウトできますか？","es":"¿Podemos hacer el check-out más tarde?","kana":"ポデモス アセール エル チェックアウト マス タルデ？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を変えてもらえますか？","es":"¿Podemos cambiar de habitación?","kana":"ポデモス カンビアール デ アビタシオン？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋が少しうるさいです","es":"La habitación es un poco ruidosa","kana":"ラ アビタシオン エス ウン ポコ ルイドサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"エアコンが動きません","es":"El aire acondicionado no funciona","kana":"エル アイレ アコンディシオナド ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"暖房が動きません","es":"La calefacción no funciona","kana":"ラ カレファクシオン ノ フンシオナ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"お湯が出ません","es":"No hay agua caliente","kana":"ノ アイ アグア カリエンテ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タオルを追加でもらえますか？","es":"¿Puede traerme más toallas?","kana":"プエデ トラエルメ マス トアジャス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"部屋を掃除してください","es":"Por favor, limpie la habitación","kana":"ポル ファボール リンピエ ラ アビタシオン","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"掃除は不要です","es":"No necesitamos limpieza","kana":"ノ ネセシタモス リンピエサ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"鍵をなくしました","es":"He perdido la llave","kana":"エ ペルディド ラ ジャベ","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"フロントは24時間ですか？","es":"¿La recepción está abierta las 24 horas?","kana":"ラ レセプシオン エスタ アビエルタ ラス ベインティクアトロ オラス？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"タクシーを呼んでもらえますか？","es":"¿Puede llamar a un taxi?","kana":"プエデ ジャマール ア ウン タクシ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"おすすめのレストランはありますか？","es":"¿Puede recomendarme un restaurante?","kana":"プエデ レコメンダールメ ウン レスタウランテ？","level":"🔥 絶対覚える50","cat":"ホテル"},{"ja":"駅まで歩いて何分ですか？","es":"¿Cuántos minutos hay hasta la estación andando?","kana":"クアントス ミヌトス アイ アスタ ラ エスタシオン アンダンド？","level":"👍 できれば覚える150","cat":"ホテル"},{"ja":"3人です","es":"Somos tres","kana":"ソモス トレス","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約しています","es":"Tenemos una reserva","kana":"テネモス ウナ レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"予約していません","es":"No tenemos reserva","kana":"ノ テネモス レセルバ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"テーブルをお願いします","es":"Una mesa, por favor","kana":"ウナ メサ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"メニューをお願いします","es":"La carta, por favor","kana":"ラ カルタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"英語のメニューはありますか？","es":"¿Tiene la carta en inglés?","kana":"ティエネ ラ カルタ エン イングレス？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"おすすめは何ですか？","es":"¿Qué recomienda?","kana":"ケ レコメエンダ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは何ですか？","es":"¿Qué es esto?","kana":"ケ エス エスト？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これは辛いですか？","es":"¿Esto es picante?","kana":"エスト エス ピカンテ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"水をください","es":"Agua, por favor","kana":"アグア ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"炭酸水をください","es":"Agua con gas, por favor","kana":"アグア コン ガス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"パンをください","es":"Pan, por favor","kana":"パン ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"もう一杯ください","es":"Otra, por favor","kana":"オトラ ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"コーヒーをください","es":"Un café, por favor","kana":"ウン カフェ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"これをください","es":"Esto, por favor","kana":"エスト ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"一つください","es":"Uno, por favor","kana":"ウノ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"二つください","es":"Dos, por favor","kana":"ドス ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"少なめにしてください","es":"Un poco menos, por favor","kana":"ウン ポコ メノス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"多めにしてください","es":"Un poco más, por favor","kana":"ウン ポコ マス ポル ファボール","level":"👍 できれば覚える150","cat":"レストラン"},{"ja":"取り皿をください","es":"Un plato más, por favor","kana":"ウン プラト マス ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"スプーンをください","es":"Una cuchara, por favor","kana":"ウナ クチャラ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"フォークをください","es":"Un tenedor, por favor","kana":"ウン テネドール ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"ナイフをください","es":"Un cuchillo, por favor","kana":"ウン クチージョ ポル ファボール","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"トイレはどこですか？","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バニョ？","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"お会計をお願いします","es":"La cuenta, por favor","kana":"ラ クエンタ ポル ファボール","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"チップは含まれていますか？","es":"¿Está incluida la propina?","kana":"エスタ インクルイダ ラ プロピナ？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"持ち帰れますか？","es":"¿Me lo puede poner para llevar?","kana":"メ ロ プエデ ポネール パラ ジェバール？","level":"⭐ 次に覚える100","cat":"レストラン"},{"ja":"とてもおいしいです","es":"Está muy rico","kana":"エスタ ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"ごちそうさまでした","es":"Muchas gracias, estaba todo muy rico","kana":"ムーチャス グラシアス エスタバ トド ムイ リコ","level":"🔥 絶対覚える50","cat":"レストラン"},{"ja":"これはいくらですか？","es":"¿Cuánto cuesta esto?","kana":"クアント クエスタ エスト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"これを見せてください","es":"¿Me puede enseñar esto?","kana":"メ プエデ エンセニャール エスト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと大きいサイズはありますか？","es":"¿Tiene una talla más grande?","kana":"ティエネ ウナ タジャ マス グランデ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"もっと小さいサイズはありますか？","es":"¿Tiene una talla más pequeña?","kana":"ティエネ ウナ タジャ マス ペケニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"別の色はありますか？","es":"¿Tiene otro color?","kana":"ティエネ オトロ コロール？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これを買います","es":"Me llevo esto","kana":"メ ジェボ エスト","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"少し考えます","es":"Voy a pensarlo","kana":"ボイ ア ペンサールロ","level":"⭐ 次に覚える100","cat":"お店"},{"ja":"もう少し安いものはありますか？","es":"¿Tiene algo más barato?","kana":"ティエネ アルゴ マス バラト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"セールですか？","es":"¿Está de oferta?","kana":"エスタ デ オフェルタ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"やすくしてもらえますか？","es":"¿Me puede hacer un precio más barato?","kana":"メ プエデ アセール ウン プレシオ マス バラト？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"袋をください","es":"Una bolsa, por favor","kana":"ウナ ボルサ ポル ファボール","level":"👍 できれば覚える150","cat":"お店"},{"ja":"カードは使えますか？","es":"¿Puedo pagar con tarjeta?","kana":"プエド パガール コン タルヘタ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"現金だけですか？","es":"¿Solo efectivo?","kana":"ソロ エフェクティボ？","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"日本円は使えますか？","es":"¿Aceptan yenes japoneses?","kana":"アセプタン ジェネス ハポネセス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"ユーロに両替できますか？","es":"¿Puedo cambiar dinero a euros?","kana":"プエド カンビアール ディネロ ア エウロス？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"これはスペイン製ですか？","es":"¿Está hecho en España?","kana":"エスタ エチョ エン エスパニャ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"営業時間は何時までですか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"近くにスーパーはありますか？","es":"¿Hay un supermercado cerca?","kana":"アイ ウン スペルメルカド セルカ？","level":"👍 できれば覚える150","cat":"お店"},{"ja":"駅はどこですか？","es":"¿Dónde está la estación?","kana":"ドンデ エスタ ラ エスタシオン？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"バス停はどこですか？","es":"¿Dónde está la parada de autobús?","kana":"ドンデ エスタ ラ パラダ デ アウトブス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"この電車は〇〇に行きますか？","es":"¿Este tren va a ___?","kana":"エステ トレン バ ア ___？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"〇〇駅はどこですか？","es":"¿Dónde está la estación de ___?","kana":"ドンデ エスタ ラ エスタシオン デ ___？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符売り場はどこですか？","es":"¿Dónde está la taquilla?","kana":"ドンデ エスタ ラ タキージャ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"切符を一枚ください","es":"Un billete, por favor","kana":"ウン ビジェテ ポル ファボール","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"往復切符をください","es":"Un billete de ida y vuelta, por favor","kana":"ウン ビジェテ デ イダ イ ブエルタ ポル ファボール","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"片道です","es":"Solo ida","kana":"ソロ イダ","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"何番線ですか？","es":"¿Qué andén es?","kana":"ケ アンデン エス？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に出発しますか？","es":"¿A qué hora sale?","kana":"ア ケ オラ サレ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何時に到着しますか？","es":"¿A qué hora llega?","kana":"ア ケ オラ ジェガ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"何分かかりますか？","es":"¿Cuánto tarda?","kana":"クアント タルダ？","level":"🔥 絶対覚える50","cat":"電車・バス"},{"ja":"乗り換えが必要ですか？","es":"¿Tengo que hacer transbordo?","kana":"テンゴ ケ アセール トランスボルド？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"ここに座ってもいいですか？","es":"¿Puedo sentarme aquí?","kana":"プエド センタールメ アキ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次の駅で降ります","es":"Bajo en la próxima estación","kana":"バホ エン ラ プロキシマ エスタシオン","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"次のバスはいつですか？","es":"¿Cuándo pasa el próximo autobús?","kana":"クアンド パサ エル プロキシモ アウトブス？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"このバスは空港へ行きますか？","es":"¿Este autobús va al aeropuerto?","kana":"エステ アウトブス バ アル アエロプエルト？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄はどこですか？","es":"¿Dónde está el metro?","kana":"ドンデ エスタ エル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"地下鉄の入口はどこですか？","es":"¿Dónde está la entrada del metro?","kana":"ドンデ エスタ ラ エントラダ デル メトロ？","level":"👍 できれば覚える150","cat":"電車・バス"},{"ja":"ここから歩いて行けますか？","es":"¿Se puede ir andando desde aquí?","kana":"セ プエデ イル アンダンド デスデ アキ？","level":"⭐ 次に覚える100","cat":"電車・バス"},{"ja":"タクシーをお願いします","es":"Un taxi, por favor","kana":"ウン タクシ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"ホテルまでお願いします","es":"Al hotel, por favor","kana":"アル オテル ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"この住所までお願いします","es":"A esta dirección, por favor","kana":"ア エスタ ディレクシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"空港までお願いします","es":"Al aeropuerto, por favor","kana":"アル アエロプエルト ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"駅までお願いします","es":"A la estación, por favor","kana":"ア ラ エスタシオン ポル ファボール","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"この場所を知っていますか？","es":"¿Conoce este lugar?","kana":"コノセ エステ ルガール？","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"止めてください","es":"Pare aquí, por favor.","kana":"パレ アキ ポル ファボール","level":"🔥 絶対覚える50","cat":"タクシー"},{"ja":"右に","es":"A la derecha","kana":"ア ラ デレチャ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"左に","es":"A la izquierda","kana":"ア ラ イスキエルダ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"まっすぐ","es":"Todo recto","kana":"トド レクト","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"近い","es":"Está cerca","kana":"エスタ セルカ","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"遠い","es":"Está lejos","kana":"エスタ レホス","level":"⭐ 次に覚える100","cat":"タクシー"},{"ja":"ここで待ってもらえますか？","es":"¿Puede esperarnos aquí?","kana":"プエデ エスペラールノス アキ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"何分くらいかかりますか？","es":"¿Cuánto tardamos aproximadamente?","kana":"クアント タルダモス アプロキシマダメンテ？","level":"👍 できれば覚える150","cat":"タクシー"},{"ja":"観光案内所はどこですか？","es":"¿Dónde está la oficina de turismo?","kana":"ドンデ エスタ ラ オフィシナ デ トゥリスモ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ここから近いですか？","es":"¿Está cerca de aquí?","kana":"エスタ セルカ デ アキ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"歩いて行けますか？","es":"¿Se puede ir andando?","kana":"セ プエデ イル アンダンド？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"どちらへ行けばいいですか？","es":"¿Por dónde tengo que ir?","kana":"ポル ドンデ テンゴ ケ イル？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"地図をもらえますか？","es":"¿Me puede dar un mapa?","kana":"メ プエデ ダール ウン マパ？","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"写真を撮ってもらえますか？","es":"¿Nos puede hacer una foto?","kana":"ノス プエデ アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"写真を撮ってもいいですか？","es":"¿Puedo hacer una foto?","kana":"プエド アセール ウナ フォト？","level":"🔥 絶対覚える50","cat":"観光"},{"ja":"ここは何という場所ですか？","es":"¿Cómo se llama este lugar?","kana":"コモ セ ジャマ エステ ルガール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"何時まで開いていますか？","es":"¿Hasta qué hora está abierto?","kana":"アスタ ケ オラ エスタ アビエルト？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"予約が必要ですか？","es":"¿Es necesario reservar?","kana":"エス ネセサリオ レセルバール？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語の案内はありますか？","es":"¿Hay información en japonés?","kana":"アイ インフォルマシオン エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"英語の案内はありますか？","es":"¿Hay información en inglés?","kana":"アイ インフォルマシオン エン イングレス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"オーディオガイドはありますか？","es":"¿Hay audioguía?","kana":"アイ アウディオギア？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"日本語のオーディオガイドはありますか？","es":"¿Hay audioguía en japonés?","kana":"アイ アウディオギア エン ハポネス？","level":"👍 できれば覚える150","cat":"観光"},{"ja":"ここで会いましょう","es":"Nos vemos aquí","kana":"ノス ベモス アキ","level":"👍 できれば覚える150","cat":"観光"},{"ja":"もう一度お願いします","es":"Otra vez, por favor","kana":"オトラ ベス ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"ゆっくり話してください","es":"Hable más despacio, por favor","kana":"アブレ マス デスパシオ ポル ファボール","level":"⭐ 次に覚える100","cat":"観光"},{"ja":"助けてください","es":"¡Ayúdeme, por favor!","kana":"アユデメ ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"警察を呼んでください","es":"Llame a la policía, por favor","kana":"ジャメ ア ラ ポリシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"救急車を呼んでください","es":"Llame a una ambulancia, por favor","kana":"ジャメ ア ウナ アンブランシア ポル ファボール","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"病院はどこですか？","es":"¿Dónde está el hospital?","kana":"ドンデ エスタ エル オスピタル？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"薬局はどこですか？","es":"¿Dónde está la farmacia?","kana":"ドンデ エスタ ラ ファルマシア？","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"医者が必要です","es":"Necesito un médico","kana":"ネセシト ウン メディコ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"気分が悪いです","es":"Me encuentro mal","kana":"メ エンクエントロ マル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"財布をなくしました","es":"He perdido la cartera","kana":"エ ペルディド ラ カルテラ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"スマートフォンをなくしました","es":"He perdido el móvil","kana":"エ ペルディド エル モビル","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"パスポートをなくしました","es":"He perdido el pasaporte","kana":"エ ペルディド エル パサポルテ","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"盗まれました","es":"Me han robado","kana":"メ アン ロバド","level":"👍 できれば覚える150","cat":"緊急・困った時"},{"ja":"助けが必要です","es":"Necesito ayuda","kana":"ネセシト アユダ","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"道に迷いました","es":"Me he perdido","kana":"メ エ ペルディド","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ホテルに戻りたいです","es":"Quiero volver al hotel","kana":"キエロ ボルベール アル オテル","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"この住所に行きたいです","es":"Quiero ir a esta dirección","kana":"キエロ イル ア エスタ ディレクシオン","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"ここは安全ですか？","es":"¿Es seguro aquí?","kana":"エス セグロ アキ？","level":"⭐ 次に覚える100","cat":"緊急・困った時"},{"ja":"大丈夫です","es":"Estoy bien","kana":"エストイ ビエン","level":"🔥 絶対覚える50","cat":"緊急・困った時"},{"ja":"こんにちは","es":"Hola","kana":"オラ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"おはよう","es":"Buenos días.","kana":"ブエノス ディアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"さようなら","es":"Adiós.","kana":"アディオス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"はい","es":"Sí.","kana":"スィ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"いいえ","es":"No.","kana":"ノ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ありがとう","es":"Gracias","kana":"グラシアス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どういたしまして","es":"De nada.","kana":"デ ナダ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"すみませんが","es":"Perdón.","kana":"ペルドン","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"ごめんなさい","es":"Lo siento.","kana":"ロ シエント","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"どうぞ","es":"Por favor.","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私の名前は鈴木太郎です。","es":"Me llamo Taro Suzuki.","kana":"メ ジャモ タロウ スズキ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"私は日本人です。","es":"Soy japonés.","kana":"ソイ ハポネス","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"もう一度言ってください","es":"Repita, por favor","kana":"レピタ ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりました","es":"Entiendo.","kana":"エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"わかりません","es":"No entiendo.","kana":"ノ エンティエンド","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"英語を話せますか","es":"¿Habla inglés?","kana":"アブラ イングレス？","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"スペイン語は分かりません","es":"No hablo español.","kana":"ノ アブロ エスパニョール","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"トイレはどこですか","es":"¿Dónde está el baño?","kana":"ドンデ エスタ エル バーニョ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"1","es":"uno","kana":"ウノ","level":"数字","cat":"数字"},{"ja":"2","es":"dos","kana":"ドス","level":"数字","cat":"数字"},{"ja":"3","es":"tres","kana":"トレス","level":"数字","cat":"数字"},{"ja":"4","es":"cuatro","kana":"クアトロ","level":"数字","cat":"数字"},{"ja":"5","es":"cinco","kana":"シンコ","level":"数字","cat":"数字"},{"ja":"6","es":"seis","kana":"セイス","level":"数字","cat":"数字"},{"ja":"7","es":"siete","kana":"シエテ","level":"数字","cat":"数字"},{"ja":"8","es":"ocho","kana":"オチョ","level":"数字","cat":"数字"},{"ja":"9","es":"nueve","kana":"ヌエベ","level":"数字","cat":"数字"},{"ja":"10","es":"diez","kana":"ディエス","level":"数字","cat":"数字"},{"ja":"11","es":"once","kana":"オンセ","level":"数字","cat":"数字"},{"ja":"12","es":"doce","kana":"ドセ","level":"数字","cat":"数字"},{"ja":"13","es":"trece","kana":"トレセ","level":"数字","cat":"数字"},{"ja":"14","es":"catorce","kana":"カトルセ","level":"数字","cat":"数字"},{"ja":"15","es":"quince","kana":"キンセ","level":"数字","cat":"数字"},{"ja":"16","es":"dieciséis","kana":"ディエシセイス","level":"数字","cat":"数字"},{"ja":"17","es":"diecisiete","kana":"ディエシシエテ","level":"数字","cat":"数字"},{"ja":"18","es":"dieciocho","kana":"ディエシオチョ","level":"数字","cat":"数字"},{"ja":"19","es":"diecinueve","kana":"ディエシヌエベ","level":"数字","cat":"数字"},{"ja":"20","es":"veinte","kana":"ベインテ","level":"数字","cat":"数字"},{"ja":"21","es":"veintiuno","kana":"ベインティウノ","level":"数字","cat":"数字"},{"ja":"22","es":"veintidós","kana":"ベインティドス","level":"数字","cat":"数字"},{"ja":"23","es":"veintitrés","kana":"ベインティトレス","level":"数字","cat":"数字"},{"ja":"24","es":"veinticuatro","kana":"ベインティクアトロ","level":"数字","cat":"数字"},{"ja":"25","es":"veinticinco","kana":"ベインティシンコ","level":"数字","cat":"数字"},{"ja":"30","es":"treinta","kana":"トレインタ","level":"数字","cat":"数字"},{"ja":"40","es":"cuarenta","kana":"クアレンタ","level":"数字","cat":"数字"},{"ja":"50","es":"cincuenta","kana":"シンクエンタ","level":"数字","cat":"数字"},{"ja":"100","es":"cien","kana":"シエン","level":"数字","cat":"数字"},{"ja":"200","es":"doscientos","kana":"ドスシエントス","level":"数字","cat":"数字"},{"ja":"300","es":"trescientos","kana":"トレスシエントス","level":"数字","cat":"数字"},{"ja":"1000","es":"mil","kana":"ミル","level":"数字","cat":"数字"},{"ja":"2000","es":"dos mil","kana":"ドス ミル","level":"数字","cat":"数字"},{"ja":"10000","es":"diez mil","kana":"ディエス ミル","level":"数字","cat":"数字"},{"ja":"100000","es":"cien mil","kana":"シエン ミル","level":"数字","cat":"数字"},{"ja":"1000000","es":"un millón","kana":"ウン ミジョン","level":"数字","cat":"数字"},{"ja":"見ているだけです。","es":"Solo estoy mirando.","kana":"ソロ エストイ ミランド","level":"🔥 絶対覚える50","cat":"お店"},{"ja":"よい旅を","es":"Buen viaje.","kana":"ブエン ビアヘ","level":"🔥 絶対覚える50","cat":"会話"},{"ja":"お願いします","es":"Por favor","kana":"ポル ファボール","level":"🔥 絶対覚える50","cat":"会話"}];
 const labels={"🔥 絶対覚える50":"🔥 絶対覚える 64","⭐ 次に覚える100":"⭐ 次に覚える 47","👍 できれば覚える150":"👍 できれば覚える 65","数字":"🔢 数字 36"};
 const weakKey='spanishWeakV2';
 let current=null, pool=[], queue=[], weakOnly=false, termNo=0, termFinished=false;
@@ -279,9 +361,546 @@ function updateProgress(){
   progress.textContent=`ターム ${termNo}　${done} / ${pool.length}`;
 }
 
+const colors=['#c60b1e','#1769aa','#21845a','#a05a00','#7b42a6','#c04d8c'];
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function chunksForPhrase(item){
+  const ja=String(item.ja||'').trim(), es=String(item.es||'').trim();
+  const jpClean=ja.replace(/[？?。.!！]+$/g,'').trim();
+  const esClean=es.replace(/^[¿¡]+|[?!.！]+$/g,'').trim();
+  const make=(j,e,note='')=>({ja:j.map(t=>({t,c:0})).map((p,i)=>({...p,c:i%colors.length})),es:e.map(t=>({t,c:0})).map((p,i)=>({...p,c:i%colors.length})),note,jaSuffix:(ja.match(/[？?。.!！]+$/)||[''])[0]});
+  const mk=(j,e,note='',jaColorMap=null,esColorMap=null)=>{
+    const jaParts=j.map((t,i)=>({t,c:(jaColorMap?jaColorMap[i]:i)%colors.length}));
+    const esParts=e.map((t,i)=>({t,c:(esColorMap?esColorMap[i]:i)%colors.length}));
+    return {ja:jaParts,es:esParts,note,jaSuffix:(ja.match(/[？?。.!！]+$/)||[''])[0]};
+  };
+  const cleanPart=x=>String(x).replace(/^[¿¡\s]+|[?!.！。\s]+$/g,'').trim();
+  let m; // Declare before any phrase-specific match uses it.
+  // Fine-grained semantic groups: keep Japanese natural while matching each colored group to Spanish.
+  if(esClean==='Tiene la carta en inglés') return mk(
+    ['英語の','メニューは','ありますか'],
+    ['Tiene','la carta','en inglés'],
+    '「英語の／メニューは／ありますか」と自然な日本語に分けています。スペイン語は語順が異なり、<em>Tiene</em>（ありますか／備えていますか）、<em>la carta</em>（メニュー）、<em>en inglés</em>（英語で）の順です。<em>la</em> は女性名詞 <em>carta</em> に付く定冠詞で、<em>la carta</em> 全体で「メニュー」を表します。<em>en</em> はここでは言語・形式を表す「〜で」、<em>inglés</em> は「英語」です。',
+    [2,1,0],[0,1,2]);
+  if(esClean==='Hay información en inglés' || esClean==='Hay información en japonés') {
+    const lang=esClean.endsWith('inglés')?'英語':'日本語';
+    return mk([lang+'の','案内は','ありますか'],['Hay','información','en '+(lang==='英語'?'inglés':'japonés')],
+      '<em>Hay</em> は「ありますか」、<em>información</em> は「情報・案内」、<em>en inglés / en japonés</em> は「英語で／日本語で」です。<em>en</em> は言語を表すときの「〜で」。日本語では「英語の案内はありますか」と言いますが、スペイン語では「案内がある」＋「英語で」という組み立てです。',[2,1,0],[0,1,2]);
+  }
+  if(esClean==='Hay audioguía en japonés') return mk(['日本語の','オーディオガイドは','ありますか'],['Hay','audioguía','en japonés'],
+    '<em>Hay</em> は「ありますか」、<em>audioguía</em> は「音声ガイド」、<em>en japonés</em> は「日本語で」です。<em>en</em> は言語を表す「〜で」。<em>Hay audioguía</em> で「音声ガイドはありますか」、<em>en japonés</em> を加えると「日本語の音声ガイドはありますか」と尋ねられます。',[2,1,0],[0,1,2]);
+  if(esClean==='Hay audioguía') return mk(['オーディオガイドは','ありますか'],['Hay','audioguía'],'<em>Hay</em> は「ありますか」、<em>audioguía</em> は「音声ガイド」です。スペイン語では「ありますか」＋「音声ガイド」という順番で尋ねます。言語を指定するなら <em>en japonés</em>（日本語で）などを加えます。',[1,0],[0,1]);
+  if(esClean==='Habla inglés') return mk(['英語を','話せますか'],['Habla','inglés'],'<em>Habla</em> は hablar（話す）の丁寧な「話しますか／話せますか」、<em>inglés</em> は「英語」です。スペイン語では動詞が先に来て、話す言語が後ろに続きます。',[1,0],[0,1]);
+  if(esClean==='Cuál es la contraseña del Wi-Fi') return mk(['Wi-Fiの','パスワードは','何ですか'],['Cuál es','la contraseña','del Wi-Fi'],'<em>Cuál es</em> は「何ですか／どれですか」、<em>la contraseña</em> は「パスワード」、<em>del Wi-Fi</em> は「Wi-Fiの」です。<em>del</em> は <em>de + el</em> の短縮形で、「〜の」を表します。<em>la</em> は女性名詞 <em>contraseña</em> とセットで覚えましょう。',[2,1,0],[0,1,2]);
+  if(esClean==='Hay un supermercado cerca') return mk(['近くに','スーパーは','ありますか'],['Hay','un supermercado','cerca'],'<em>Hay</em> は「ありますか」、<em>un supermercado</em> は「スーパー」、<em>cerca</em> は「近くに」です。<em>un</em> は男性名詞 <em>supermercado</em> に付く不定冠詞で、名詞と一緒に覚えます。日本語は「近くにスーパーはありますか」という順番が自然です。',[2,1,0],[0,1,2]);
+  if(esClean==='Tiene otro color') return mk(['別の色は','ありますか'],['Tiene','otro color'],'<em>Tiene</em> は「ありますか／持っていますか」、<em>otro color</em> は「別の色」です。<em>otro</em> は「別の」、<em>color</em> は「色」。店で別の色の商品があるか尋ねる表現です。',[1,0],[0,1]);
+  if(esClean==='Tiene algo más barato') return mk(['もっと安い','ものは','ありますか'],['Tiene','algo','más barato'],'<em>Tiene</em> は「ありますか」、<em>algo</em> は「何か／もの」、<em>más barato</em> は「もっと安い」です。<em>algo más barato</em> 全体で「もっと安いもの」。日本語では「もっと安いものはありますか」と自然な順に並べます。',[2,1,0],[0,1,2]);
+  if(esClean==='Tiene una talla más grande' || esClean==='Tiene una talla más pequeña') {
+    const size=esClean.endsWith('grande')?'大きい':'小さい';
+    const degree=esClean.endsWith('grande')?'más grande':'más pequeña';
+    return mk([`もっと${size}サイズは`,'ありますか'],['Tiene',`una talla ${degree}`],
+      `<em>Tiene</em> は「ありますか」、<em>una talla</em> は「サイズ」、<em>${degree}</em> は「より${size}」です。<em>una</em> は女性名詞 <em>talla</em> に付く不定冠詞なので、<em>una talla</em> をひとまとまりで覚えましょう。`,[1,0],[0,1]);
+  }
+  if(esClean==='Quiero facturar mi equipaje') return mk(['荷物を預け','たいです'],['Quiero','facturar mi equipaje'],'<em>Quiero</em> は「〜したい」、<em>facturar</em> は空港で「荷物を預ける／チェックインする」、<em>mi equipaje</em> は「私の荷物」です。<em>mi</em> は「私の」、<em>equipaje</em> は「荷物」。動作と「したい」という希望を分けて覚えます。',[1,0],[0,1]);
+  if(esClean==='Quiero ir al centro de Barcelona') return mk(['バルセロナ市内へ','行きたいです'],['Quiero ir','al centro de Barcelona'],'<em>Quiero ir</em> は「行きたい」、<em>al centro de Barcelona</em> は「バルセロナの中心部へ」です。<em>al</em> は <em>a + el</em> の短縮形で「〜へ」を表します。',[1,0],[0,1]);
+  if(esClean==='Pueden guardar mi equipaje') return mk(['荷物を','預かってもらえますか'],['Pueden guardar','mi equipaje'],'<em>Pueden guardar</em> は「預かってもらえますか」、<em>mi equipaje</em> は「私の荷物」です。<em>pueden</em> は「〜できますか」という丁寧な依頼に使う形、<em>guardar</em> は「保管する・預かる」です。',[1,0],[0,1]);
+  if(esClean==='Podemos hacer el check-in antes') return mk(['早めに','チェックインできますか'],['Podemos hacer el check-in','antes'],'<em>Podemos hacer el check-in</em> は「チェックインできますか」、<em>antes</em> は「前に／早めに」です。<em>Podemos</em> は「私たちは〜できますか」、<em>hacer el check-in</em> は「チェックインをする」というまとまりです。',[1,0],[0,1]);
+  if(esClean==='Podemos hacer el check-out más tarde') return mk(['遅めに','チェックアウトできますか'],['Podemos hacer el check-out','más tarde'],'<em>Podemos hacer el check-out</em> は「チェックアウトできますか」、<em>más tarde</em> は「もっと遅く／遅めに」です。<em>hacer el check-out</em> は「チェックアウトをする」というまとまりです。',[1,0],[0,1]);
+  if(esClean==='Podemos cambiar de habitación') return mk(['部屋を','変えてもらえますか'],['Podemos cambiar','de habitación'],'<em>Podemos cambiar</em> は「変更できますか」、<em>de habitación</em> は「部屋を／部屋について」です。<em>cambiar de habitación</em> で「部屋を変える」。<em>Podemos</em> は「私たちは〜できますか」という丁寧な尋ね方です。',[1,0],[0,1]);
+  if(esClean==='Puede traerme más toallas') return mk(['タオルを追加で','持ってきてもらえますか'],['Puede traerme','más toallas'],'<em>Puede traerme</em> は「私に持ってきていただけますか」、<em>más toallas</em> は「もっとタオル／追加のタオル」です。<em>me</em> は「私に」を表し、<em>más</em> は「もっと・追加の」です。',[1,0],[0,1]);
+  if(esClean==='He perdido la llave') return mk(['鍵を','なくしました'],['He perdido','la llave'],'<em>He perdido</em> は「なくしてしまいました」、<em>la llave</em> は「鍵」です。<em>la</em> は女性名詞 <em>llave</em> に付く定冠詞。過去の出来事を伝える表現として、動詞部分と失くした物を分けて覚えましょう。',[1,0],[0,1]);
+  if(esClean==='Esto es picante') return mk(['これは','辛いですか'],['Esto','es picante'],'<em>Esto</em> は「これ」、<em>es picante</em> は「辛いです」です。<em>picante</em> は食べ物の辛さを表します。料理を指さしながら使えます。',[0,1],[0,1]);
+  if(esClean==='Está muy rico') return mk(['とても','おいしいです'],['muy','rico'],'<em>muy</em> は「とても」、<em>rico</em> は「おいしい」です。スペイン語では <em>muy</em> を形容詞の前に置いて「とても〜」と強めます。',[0,1],[0,1]);
+  if(esClean==='Me llevo esto') return mk(['これを','買います'],['Me llevo','esto'],'<em>Me llevo</em> は直訳すると「私は持っていきます」で、買い物では「これを買います／これにします」という意味で使えます。<em>esto</em> は「これ」です。日本語と語順が違うため、色で意味を対応させています。',[1,0],[0,1]);
+  if(esClean==='Está de oferta') return mk(['セール中','ですか'],['Está','de oferta'],'<em>Está</em> は「〜です／〜の状態です」、<em>de oferta</em> は「特売で／セール中」です。<em>de oferta</em> をまとまりで覚えると、商品がセール中か尋ねられます。',[1,0],[0,1]);
+  if(esClean==='Solo efectivo') return mk(['現金','だけですか'],['Solo','efectivo'],'<em>Solo</em> は「〜だけ」、<em>efectivo</em> は「現金」です。短い表現で「現金だけですか？」と確認できます。',[0,1],[1,0]);
+  if(esClean==='Está hecho en España') return mk(['スペインで','作られていますか'],['Está hecho','en España'],'<em>Está hecho</em> は「作られています」、<em>en España</em> は「スペインで」です。<em>hecho</em> は hacer（作る）に関係する形で、製造された場所を尋ねるときに使います。',[1,0],[0,1]);
+  if(esClean==='Qué andén es') return mk(['何番線','ですか'],['Qué andén','es'],'<em>Qué andén</em> は「何番線／どのホーム」、<em>es</em> は「です」です。<em>andén</em> は駅のホーム・番線を表します。',[0,1],[0,1]);
+  if(esClean==='Tengo que hacer transbordo') return mk(['乗り換えを','しなければなりませんか'],['Tengo que hacer','transbordo'],'<em>Tengo que hacer</em> は「〜しなければなりません」、<em>transbordo</em> は「乗り換え」です。<em>tener que + 動詞</em> は「〜しなければならない」という型です。',[1,0],[0,1]);
+  if(esClean==='Puedo sentarme aquí') return mk(['ここに','座ってもいいですか'],['aquí','Puedo sentarme'],'<em>Puedo sentarme</em> は「座ってもいいですか」、<em>aquí</em> は「ここに」です。<em>puedo</em> は「私は〜できますか／〜してもいいですか」、<em>sentarme</em> は「座る」です。',[0,1],[1,0]);
+  if(esClean==='Bajo en la próxima estación') return mk(['次の駅で','降ります'],['en la próxima estación','Bajo'],'<em>en la próxima estación</em> は「次の駅で」、<em>bajo</em> は「私は降ります」です。<em>la próxima estación</em> は「次の駅」という名詞のまとまりで、<em>la</em> は estación とセットの冠詞です。',[0,1],[0,1]);
+  if(esClean==='Conoce este lugar') return mk(['この場所を','知っていますか'],['este lugar','Conoce'],'<em>Conoce</em> は「知っていますか」、<em>este lugar</em> は「この場所」です。<em>este</em> は男性名詞 <em>lugar</em> と一緒に「この場所」というまとまりになります。',[0,1],[1,0]);
+  if(esClean==='Está cerca de aquí') return mk(['ここから','近いですか'],['cerca de aquí','Está'],'<em>cerca de aquí</em> は「ここから近くに／ここから近い」、<em>está</em> は「〜です／あります」です。<em>cerca de</em> は「〜の近く」を表すまとまりです。',[0,1],[1,0]);
+  if(esClean==='Se puede ir andando') return mk(['歩いて','行けますか'],['andando','Se puede ir'],'<em>Se puede ir</em> は「行くことができますか」、<em>andando</em> は「歩いて」です。<em>Se puede + 動詞</em> は一般的に「〜できますか」と尋ねる形です。',[0,1],[1,0]);
+  if(esClean==='Puede esperarnos aquí') return mk(['ここで','待ってもらえますか'],['aquí','Puede esperarnos'],'<em>Puede esperarnos</em> は「私たちを待っていただけますか」、<em>aquí</em> は「ここで」です。<em>nos</em> は「私たちを／私たちに」を表し、動詞に付いています。',[0,1],[1,0]);
+  if(esClean==='Es seguro aquí') return mk(['ここは','安全ですか'],['aquí','Es seguro'],'<em>Es seguro</em> は「安全ですか」、<em>aquí</em> は「ここは／ここで」です。スペイン語では「安全ですか」が先に来て、場所の <em>aquí</em> が後ろに置かれます。',[0,1],[1,0]);
+  if(esClean==='Solo estoy mirando') return mk(['見ています','だけです'],['estoy mirando','Solo'],'<em>estoy mirando</em> は「見ています」、<em>solo</em> は「〜だけ」です。<em>estoy mirando</em> と「見ています」、<em>Solo</em> と「だけです」の色を対応させています。<em>Solo estoy mirando</em> 全体で「見ているだけです」となり、店員さんに声をかけられたときに使えます。',[0,1],[0,1]);
+  // Phrase-specific alignment: keep the original natural Japanese prompt, but use a slightly
+  // more literal Japanese rendering on the comparison line where it helps learners map meaning.
+  const alignmentOverrides={
+    '¿Dónde está el mostrador de facturación?': {ja:['どこにありますか','チェックインカウンター'],es:['Dónde está','el mostrador de facturación'],note:'「チェックインカウンター」は日本語で自然な言い方ですが、スペイン語の mostrador de facturación は直訳すると「搭乗手続きのカウンター」です。空港ではこのまとまりで覚えましょう。'},
+    '¿Dónde está la recogida de equipaje?': {ja:['どこにありますか','手荷物受取所'],es:['Dónde está','la recogida de equipaje'],note:'recogida de equipaje は「荷物を受け取る場所」、つまり「手荷物受取所」です。la は女性名詞 recogida とセットで覚えます。'},
+    '¿Dónde está la parada de taxis?': {ja:['どこにありますか','タクシー乗り場'],es:['Dónde está','la parada de taxis'],note:'parada は「停留所・乗り場」、de taxis は「タクシーの」です。「タクシーの乗り場」という名詞のまとまりで覚えましょう。'},
+    '¿Dónde está la parada de autobús?': {ja:['どこにありますか','バス停'],es:['Dónde está','la parada de autobús'],note:'la parada de autobús は「バス停」です。la は女性名詞 parada に付く定冠詞、parada は「停留所・乗り場」、de は名詞同士をつないで「〜の／〜用の」を表し、autobús は「バス」です。'},
+    '¿Dónde está el tren?': {ja:['どこにありますか','電車'],es:['Dónde está','el tren'],note:'el tren は「その電車／電車」。el は男性名詞 tren に付く冠詞で、日本語では通常訳しません。名詞と一緒に覚えましょう。'},
+    '¿De dónde sale este vuelo?': {ja:['どこから出発しますか','この便'],es:['De dónde sale','este vuelo'],note:'sale は salir（出る・出発する）の形です。este vuelo は「この便」。日本語では「この便はどこから出発しますか」と語順を整えると自然です。'},
+    '¿Cuál es la puerta de embarque?': {ja:['どれですか／何番ですか','搭乗口'],es:['Cuál es','la puerta de embarque'],note:'puerta de embarque は直訳すると「搭乗のドア」で、空港の「搭乗口」です。la は puerta とセットの冠詞です。'},
+    '¿Cuál es el número de la habitación?': {ja:['何ですか','部屋番号'],es:['Cuál es','el número de la habitación'],note:'el número de la habitación は「部屋の番号」、つまり「部屋番号」です。冠詞 el と名詞 número、さらに de la habitación がつながって一つの名詞句になります。'},
+    '¿A qué hora es el desayuno?': {ja:['何時ですか','朝食'],es:['A qué hora es','el desayuno'],note:'A qué hora es は「何時ですか」、el desayuno は「朝食」です。el は desayuno とセットで、時刻を尋ねる型として覚えましょう。'},
+    '¿A qué hora sale?': {ja:['何時に','出発しますか'],es:['A qué hora','sale'],note:'「A qué hora」は「何時に」、「sale」は salir（出る・出発する）の形で「出発しますか」を表します。時刻を尋ねる部分と、出発する動作を別々のまとまりとして覚えましょう。主語が省略されているため、文脈に応じて「何時に出発しますか」となります。'},
+    '¿A qué hora llega?': {ja:['何時に','到着しますか'],es:['A qué hora','llega'],note:'「A qué hora」は「何時に」、「llega」は llegar（到着する）の形で「到着しますか」を表します。時刻を尋ねる部分と、到着する動作を分けて覚えましょう。'},
+    '¿Hasta qué hora está abierto?': {ja:['何時まで','開いていますか'],es:['Hasta qué hora','está abierto'],note:'「Hasta qué hora」は「何時まで」、「está abierto」は「開いています／開いていますか」です。営業時間を尋ねるときは、時刻の範囲と「開いている」という状態を別々に捉えると分かりやすくなります。'},
+    '¿Cuándo pasa el próximo autobús?': {ja:['いつ来ますか','次のバス'],es:['Cuándo pasa','el próximo autobús'],note:'「Cuándo pasa」は「いつ通りますか／いつ来ますか」、「el próximo autobús」は「次のバス」です。el は autobús と、próximo（次の）も名詞 autobús と結びついて「次のバス」というまとまりになります。'},
+    '¿Cuántos minutos hay hasta la estación andando?': {ja:['何分かかりますか','駅まで歩いて'],es:['Cuántos minutos hay','hasta la estación andando'],note:'「Cuántos minutos hay」は「何分ありますか／何分かかりますか」、「hasta la estación andando」は「歩いて駅まで」です。自然な日本語では「駅まで歩いて何分ですか」となりますが、比較するときは「所要時間」と「駅まで歩くこと」のまとまりで考えましょう。'},
+    '¿Cuánto tarda?': {ja:['どれくらい','時間がかかりますか'],es:['Cuánto','tarda'],note:'「Cuánto」は「どれくらい」、「tarda」は tardar（時間がかかる）の形です。「どれくらい」と「時間がかかる」を分けて覚えると、所要時間を尋ねる表現として応用できます。'},
+    '¿Cuánto tardamos aproximadamente?': {ja:['どれくらい','時間がかかりますか（およそ）'],es:['Cuánto','tardamos aproximadamente'],note:'「Cuánto」は「どれくらい」、「tardamos」は「私たちは時間がかかる」、「aproximadamente」は「およそ」です。移動にかかる時間を大まかに尋ねる表現です。'},
+    '¿Está incluido el desayuno?': {ja:['含まれていますか','朝食'],es:['Está incluido','el desayuno'],note:'incluido は「含まれている」という意味です。スペイン語では「含まれている朝食」という内容を、Está incluido el desayuno? の形で尋ねます。'},
+    'Tengo una reserva a nombre de Suzuki': {ja:['予約があります','鈴木という名前で'],es:['Tengo una reserva','a nombre de Suzuki'],note:'a nombre de ～ は「～という名前で」です。una reserva は「予約」で、una と reserva は名詞句としてセットで覚えます。'},
+    'Tenemos una reserva': {ja:['私たちは予約を持っています','予約'],es:['Tenemos','una reserva'],note:'Tenemos は「私たちは持っています」、una reserva は「予約」です。日本語では「予約しています」と言う方が自然ですが、スペイン語は「予約を持っている」という形です。'},
+    'Quiero hacer el check-in': {ja:['私は～したいです','チェックインをする'],es:['Quiero','hacer el check-in'],note:'Quiero は「私は～したい」、hacer は「する」です。hacer el check-in は「チェックインをする」というまとまり。el は check-in とセットで覚えます。'},
+    'Quiero hacer el check-out': {ja:['私は～したいです','チェックアウトをする'],es:['Quiero','hacer el check-out'],note:'Quiero は「私は～したい」、hacer は「する」。hacer el check-out で「チェックアウトをする」です。el は check-out と一緒に覚えましょう。'},
+    '¿Puede llamar a un taxi?': {ja:['呼んでいただけますか','タクシーを'],es:['Puede llamar','a un taxi'],note:'Puede llamar は「電話する／呼ぶことができますか」という丁寧な依頼です。a un taxi はここでは「タクシーを呼ぶ」の対象を示します。un taxi は名詞句としてまとめます。'},
+    '¿Puede recomendarme un restaurante?': {ja:['勧めていただけますか','レストランを'],es:['Puede recomendarme','un restaurante'],note:'recomendarme は「私に勧める」。me が動詞にくっついて「私に」を表します。un restaurante は「あるレストラン／レストランを」で、冠詞 un と名詞をセットで覚えます。'},
+    '¿Qué recomienda?': {ja:['何を','おすすめしますか'],es:['Qué','recomienda'],note:'Qué は「何を」、recomienda は「（あなたは）勧めます」。日本語では「おすすめは何ですか」と言いますが、語順を比べるためには「何をおすすめしますか」と考えると対応が見えやすくなります。'},
+    '¿Qué es esto?': {ja:['何ですか','これは'],es:['Qué es','esto'],note:'Qué es は「何ですか」、esto は「これ」です。スペイン語は「何ですか」→「これ」の順になるため、意味のまとまりで比べましょう。'},
+    'Muchas gracias, estaba todo muy rico': {ja:['どうもありがとう','全部とてもおいしかったです'],es:['Muchas gracias','estaba todo muy rico'],note:'Muchas gracias は「どうもありがとう」、estaba todo muy rico は「全部とてもおいしかったです」。日本語の「ごちそうさまでした」に近い場面で使えますが、スペイン語では感謝と感想を言葉にしています。'},
+    '¿Cuánto cuesta esto?': {ja:['いくらですか','これは'],es:['Cuánto cuesta','esto'],note:'Cuánto cuesta は「いくらしますか」、esto は「これ」です。日本語の語順に整えると「これはいくらですか」。値段を尋ねる型としてまとめて覚えましょう。'},
+    '¿Me puede enseñar esto?': {ja:['見せていただけますか','これを'],es:['Me puede enseñar','esto'],note:'Me puede enseñar は「私に見せていただけますか」。me は「私に」、puede enseñar は丁寧な依頼の形です。esto は「これ」です。'},
+    '¿Tiene una talla más grande?': {ja:['ありますか','もう一つ大きいサイズ'],es:['Tiene','una talla más grande'],note:'una talla más grande は「もう一つ大きいサイズ」。una talla をひとまとまりで覚え、más grande が「より大きい」を表します。'},
+    '¿Tiene una talla más pequeña?': {ja:['ありますか','もう一つ小さいサイズ'],es:['Tiene','una talla más pequeña'],note:'una talla más pequeña は「もう一つ小さいサイズ」。más は「もっと／より」、pequeña は「小さい」です。サイズの名詞句ごと覚えましょう。'},
+    '¿Tiene algo más barato?': {ja:['ありますか','もっと安いもの'],es:['Tiene','algo más barato'],note:'algo は「何か／もの」、más barato は「もっと安い」です。algo más barato で「もっと安いもの」というまとまりになります。'},
+    '¿Me puede hacer un precio más barato?': {ja:['安くしていただけますか','もう少し安い値段を'],es:['Me puede hacer','un precio más barato'],note:'hacer un precio は「値段を付ける／提示する」、más barato は「もっと安い」です。全体で「もっと安い値段にしていただけますか」という値段交渉の表現です。'},
+    '¿Puedo pagar con tarjeta?': {ja:['払えますか','カードで'],es:['Puedo pagar','con tarjeta'],note:'Puedo pagar は「私は支払えますか」、con tarjeta は「カードで」です。con は「～で／～を使って」を表します。'},
+    '¿Aceptan yenes japoneses?': {ja:['受け付けていますか','日本円を'],es:['Aceptan','yenes japoneses'],note:'Aceptan は店や施設に対して「受け付けていますか／受け取りますか」。yenes japoneses は「日本円」です。通貨名をひとまとまりで覚えましょう。'},
+    '¿Puedo cambiar dinero a euros?': {ja:['両替できますか','お金をユーロに'],es:['Puedo cambiar','dinero a euros'],note:'Puedo cambiar は「両替できますか」、dinero a euros は「お金をユーロに」です。a は変化後の行き先・形を示し、ここでは「ユーロに」を表します。'},
+    '¿Hasta qué hora está abierto?': {ja:['何時まで','開いていますか'],es:['Hasta qué hora','está abierto'],note:'Hasta qué hora は「何時まで」、está abierto は「開いていますか／開いています」です。営業時間を尋ねるときの便利な型です。'},
+    '¿Hay un supermercado cerca?': {ja:['ありますか','近くにスーパーが'],es:['Hay','un supermercado cerca'],note:'Hay は「ありますか」、un supermercado cerca は「近くにスーパーが」です。un は supermercado とセットの冠詞で、cerca は「近くに」を表します。'},
+    '¿Está incluida la propina?': {ja:['含まれていますか','チップは'],es:['Está incluida','la propina'],note:'incluida は「含まれている」で、女性名詞 propina（チップ）に合わせた形です。la propina をひとまとまりで覚えましょう。'},
+    '¿Me lo puede poner para llevar?': {ja:['持ち帰り用にしていただけますか','それを'],es:['Me lo puede poner','para llevar'],note:'Me lo puede poner は「それを私のために用意していただけますか」、para llevar は「持ち帰るために」です。直訳よりも「持ち帰り用にしてもらえますか」と理解すると自然です。'},
+    '¿Cuántos minutos hay hasta la estación andando?': {ja:['何分ありますか','駅まで歩いて'],es:['Cuántos minutos hay','hasta la estación andando'],note:'Cuántos minutos hay は「何分ありますか／何分かかりますか」、hasta la estación andando は「歩いて駅まで」です。自然な日本語では「駅まで歩いて何分ですか」となります。'},
+    '¿Cuándo pasa el próximo autobús?': {ja:['いつ来ますか','次のバスは'],es:['Cuándo pasa','el próximo autobús'],note:'Cuándo pasa は「いつ通りますか／来ますか」、el próximo autobús は「次のバス」です。próximo は「次の」、el は autobús とセットで覚えます。'},
+    '¿Este autobús va al aeropuerto?': {ja:['このバスは','空港へ行きますか'],es:['Este autobús','va al aeropuerto'],note:'Este autobús は「このバス」、va al aeropuerto は「空港へ行きます」。al は a + el が縮まった形で、「～へ」を表します。'},
+    '¿Dónde está la entrada del metro?': {ja:['どこにありますか','地下鉄の入口'],es:['Dónde está','la entrada del metro'],note:'la entrada del metro は「地下鉄の入口」です。del は de + el が縮まった形で、「地下鉄の」を表します。入口・出口などの名詞句と一緒に覚えましょう。'},
+    '¿Se puede ir andando desde aquí?': {ja:['行けますか','ここから歩いて'],es:['Se puede ir andando','desde aquí'],note:'Se puede ir は「行くことができます」、andando は「歩いて」、desde aquí は「ここから」です。直訳より「ここから歩いて行けますか」と組み立てると分かりやすくなります。'},
+    'Al hotel, por favor': {ja:['ホテルへ','お願いします'],es:['Al hotel','por favor'],note:'Al hotel は a + el hotel が縮まった形で「ホテルへ」です。タクシーで行き先を伝えるときは、行き先＋por favor だけでも通じます。'},
+    'A la estación, por favor': {ja:['駅へ','お願いします'],es:['A la estación','por favor'],note:'A la estación は「駅へ」、por favor は「お願いします」。a は行き先を表し、la は estación とセットの冠詞です。'},
+    'A esta dirección, por favor': {ja:['この住所へ','お願いします'],es:['A esta dirección','por favor'],note:'A esta dirección は「この住所へ」、por favor は「お願いします」。esta は女性名詞 dirección に合わせた「この」です。'},
+    'Al aeropuerto, por favor': {ja:['空港へ','お願いします'],es:['Al aeropuerto','por favor'],note:'Al aeropuerto は a + el aeropuerto が縮まった形で「空港へ」です。al は「a el」を一語にした形なので、セットで覚えましょう。'},
+    '¿Por dónde tengo que ir?': {ja:['どの道を通れば','行かなければなりませんか'],es:['Por dónde','tengo que ir'],note:'Por dónde は「どの道を通って／どちらへ」、tengo que ir は「行かなければならない」です。全体で「どちらへ行けばいいですか」という道案内の質問になります。'},
+    '¿Me puede dar un mapa?': {ja:['いただけますか','地図を'],es:['Me puede dar','un mapa'],note:'Me puede dar は「私にください／いただけますか」、un mapa は「地図」です。un は mapa とセットで覚えます。'},
+    '¿Nos puede hacer una foto?': {ja:['撮っていただけますか','私たちの写真を'],es:['Nos puede hacer','una foto'],note:'Nos puede hacer は「私たちに／私たちのためにしていただけますか」、una foto は「写真」です。日本語では「私たちの写真を撮ってもらえますか」と自然に言い換えます。'},
+    '¿Puedo hacer una foto?': {ja:['撮ってもいいですか','写真を'],es:['Puedo hacer','una foto'],note:'Puedo hacer は「私は～できますか／してもいいですか」、una foto は「写真」です。自分が写真を撮ってよいか尋ねる表現です。'},
+    '¿Cómo se llama este lugar?': {ja:['何と呼ばれていますか','この場所は'],es:['Cómo se llama','este lugar'],note:'Cómo se llama は直訳すると「どのように呼ばれますか」、este lugar は「この場所」です。自然な日本語では「ここは何という場所ですか」となります。'},
+    '¿Es necesario reservar?': {ja:['必要ですか','予約することが'],es:['Es necesario','reservar'],note:'Es necesario は「必要です」、reservar は「予約すること」。動詞の原形 reservar が「予約すること」という意味で使われています。'},
+    '¿Hay información en japonés?': {ja:['ありますか','日本語の案内が'],es:['Hay','información en japonés'],note:'información en japonés は「日本語での案内／情報」です。en japonés は「日本語で」を表し、información と合わせて覚えます。'},
+    '¿Hay audioguía en japonés?': {ja:['ありますか','日本語の音声ガイドが'],es:['Hay','audioguía en japonés'],note:'audioguía en japonés は「日本語の音声ガイド」です。en japonés は「日本語で／日本語の」を表すまとまりです。'},
+    'Llame a la policía, por favor': {ja:['呼んでください','警察を'],es:['Llame a la policía','por favor'],note:'Llame は「呼んでください」という丁寧な命令形です。a la policía は「警察を」で、スペイン語では人や組織を直接の対象にするとき a を使うことがあります。'},
+    'Llame a una ambulancia, por favor': {ja:['呼んでください','救急車を'],es:['Llame a una ambulancia','por favor'],note:'Llame は丁寧な「呼んでください」、a una ambulancia は「救急車を」です。una と ambulancia は女性名詞のまとまりとして覚えましょう。'},
+    'He perdido la cartera': {ja:['なくしました','財布を'],es:['He perdido','la cartera'],note:'He perdido は「私はなくしてしまいました」、la cartera は「財布」です。la は cartera とセットで覚える冠詞です。'},
+    'He perdido el móvil': {ja:['なくしました','スマートフォンを'],es:['He perdido','el móvil'],note:'He perdido は「なくしました」、el móvil はスペインでよく使う「携帯電話」です。el は男性名詞 móvil とセットで覚えます。'},
+    'He perdido el pasaporte': {ja:['なくしました','パスポートを'],es:['He perdido','el pasaporte'],note:'He perdido は「なくしました」、el pasaporte は「パスポート」です。el と名詞 pasaporte を一緒に覚えましょう。'},
+    'Quiero volver al hotel': {ja:['戻りたいです','ホテルに'],es:['Quiero volver','al hotel'],note:'Quiero volver は「戻りたい」、al hotel は「ホテルに」です。al は a + el の短縮形で、行き先を表します。'},
+    'Quiero ir a esta dirección': {ja:['行きたいです','この住所に'],es:['Quiero ir','a esta dirección'],note:'Quiero ir は「行きたい」、a esta dirección は「この住所へ」です。esta は女性名詞 dirección に合わせた「この」です。'},
+    'Me encuentro mal': {ja:['私は具合が','悪いです'],es:['Me encuentro','mal'],note:'Me encuentro は「私は自分の状態を感じています／私は～の状態です」、mal は「悪く」。全体で「具合が悪いです」という意味になります。'},
+    'Me han robado': {ja:['盗まれました'],es:['Me han robado'],note:'Me han robado は「（誰かが）私の物を盗みました」という意味です。me は被害を受けた人を示し、日本語では「盗まれました」と表現します。'},
+    'Me he perdido': {ja:['私は','道に迷いました'],es:['Me he perdido'],note:'Me he perdido は「道に迷いました／自分の位置が分からなくなりました」。スペイン語ではこの形全体で覚えると便利です。'},
+    'Me llamo Taro Suzuki.': {ja:['私は～といいます','タロウ・スズキ'],es:['Me llamo','Taro Suzuki'],note:'Me llamo は直訳すると「私は自分を～と呼びます」、自然には「私は～といいます」です。名前を続けるだけで自己紹介できます。'},
+    'Soy japonés.': {ja:['私は','日本人です'],es:['Soy','japonés'],note:'Soy は ser（～です）の「私は」の形、japonés は「日本人」です。女性が話す場合は一般に japonesa と言います。'},
+    'No hablo español.': {ja:['話せません','スペイン語を'],es:['No hablo','español'],note:'No hablo は「私は話しません／話せません」、español は「スペイン語」です。No が動詞の前に来て否定を作ります。'},
+    'Solo estoy mirando.': {ja:['見ているだけです'],es:['Solo estoy mirando'],note:'Solo は「ただ～だけ」、estoy mirando は「見ているところです」。店で買うと決めていないときに使える自然な表現です。'}
+  };
+  // Keep Japanese location questions in natural order while preserving semantic color links.
+  if((m=esClean.match(/^Dónde está (.+)$/i))){
+    let subject=jpClean.replace(/はどこですか$/,'').trim();
+    const special={'手荷物':'手荷物受取所','手荷物受取所':'手荷物受取所','朝食':'朝食会場','部屋':'私の部屋'};
+    subject=special[subject]||subject;
+    if(subject){
+      const noun=cleanPart(m[1]);
+      const baseNote='';
+      let grammar='';
+      if(/\bparada\b/i.test(noun)) grammar=' <strong>la parada de autobús</strong> は「バス停」です。<em>la</em> は女性名詞 <em>parada</em> に付く定冠詞、<em>parada</em> は「停留所・乗り場」、<em>de</em> は名詞同士をつないで「〜の／〜用の」を表し、<em>autobús</em> は「バス」です。全体で「バスの停留所」という意味になります。';
+      else if(/\bentrada\b.*\bdel metro\b/i.test(noun)) grammar=' <em>la entrada</em> は「入口」、<em>del metro</em> は <em>de + el metro</em> が縮まった形で「地下鉄の」です。<em>de</em> が「何の入口か」を説明します。';
+      else if(/\bde\b/i.test(noun)) grammar=' この名詞のまとまりの <em>de</em> は、名詞同士をつないで「〜の／〜に関する」という関係を表します。';
+      const note=(baseNote?baseNote+' ':'')+'日本語は自然な順番で「'+subject+'は／どこですか」と分けています。スペイン語の <em>¿Dónde está…?</em> は「…はどこですか？」という質問の型です。'+grammar;
+      return mk([subject+'は','どこですか'],['Dónde está',noun],note,[1,0],[0,1]);
+    }
+  }
+  // Natural Japanese word order for other common questions whose Spanish word order differs.
+  if(esClean==='Cuánto cuesta esto') return mk(['これは','いくらですか'],['Cuánto cuesta','esto'],'日本語では「これは／いくらですか」の順が自然です。スペイン語では値段を尋ねる <em>Cuánto cuesta</em> のあとに、対象の <em>esto</em>（これ）が来ます。',[1,0],[0,1]);
+  if(esClean==='Qué es esto') return mk(['これは','何ですか'],['Qué es','esto'],'日本語は「これは／何ですか」と自然な順番にしています。スペイン語では <em>esto</em>（これ）が後ろに来ます。',[1,0],[0,1]);
+  if(esClean==='Hay un supermercado cerca') return mk(['近くに','スーパーは','ありますか'],['Hay','un supermercado','cerca'],'<em>Hay</em> は「ありますか」、<em>un supermercado</em> は「スーパー」、<em>cerca</em> は「近くに」です。<em>un</em> は男性名詞 <em>supermercado</em> に付く不定冠詞で、名詞と一緒に覚えます。日本語は「近くにスーパーはありますか」という順番が自然です。',[2,1,0],[0,1,2]);
+  if(esClean==='Cuándo pasa el próximo autobús') return mk(['次のバスは','いつ来ますか'],['Cuándo pasa','el próximo autobús'],'日本語では「次のバスは／いつ来ますか」と並べます。スペイン語では「いつ通りますか」が先に来て、<em>el próximo autobús</em>（次のバス）が後ろに続きます。<em>el próximo</em> は名詞 <em>autobús</em> とまとまって「次のバス」です。',[1,0],[0,1]);
+  if(esClean==='Está incluido el desayuno') return mk(['朝食は','含まれていますか'],['Está incluido','el desayuno'],'日本語では「朝食は／含まれていますか」とするのが自然です。スペイン語では「含まれていますか」にあたる <em>Está incluido</em> のあとに、対象の <em>el desayuno</em>（朝食）が続きます。',[1,0],[0,1]);
+  if(esClean==='Está incluida la propina') return mk(['チップは','含まれていますか'],['Está incluida','la propina'],'日本語では「チップは／含まれていますか」と分けます。<em>incluida</em> は女性名詞 <em>propina</em>（チップ）に合わせた形です。<em>la propina</em> は冠詞と名詞を一緒に覚えましょう。',[1,0],[0,1]);
+  if(/^Tiene una talla más (grande|pequeña)$/.test(esClean)) return mk([esClean.includes('grande')?'もっと大きいサイズは':'もっと小さいサイズは','ありますか'],['Tiene',cleanPart(esClean)],'日本語では「サイズは／ありますか」と自然な順番にしています。<em>una talla</em> は「サイズ」、<em>más grande</em> は「より大きい」、<em>más pequeña</em> は「より小さい」です。<em>una</em> は女性名詞 <em>talla</em> とセットで覚えます。',[1,0],[0,1]);
+  if(esClean==='Puedo pagar con tarjeta') return mk(['カードで','支払えますか'],['Puedo pagar','con tarjeta'],'日本語では「カードで／支払えますか」と言うと自然です。<em>Puedo pagar</em> は「私は支払えますか」、<em>con tarjeta</em> は「カードで」です。<em>con</em> は手段を表す「〜で」です。',[1,0],[0,1]);
+  if(esClean==='Puede llamar a un taxi') return mk(['タクシーを','呼んでいただけますか'],['Puede llamar','a un taxi'],'日本語では「タクシーを／呼んでいただけますか」と自然な順番にしています。<em>Puede llamar</em> は丁寧な依頼の型、<em>a un taxi</em> はここでは「タクシーを」という対象です。<em>un taxi</em> は冠詞と名詞をまとめて覚えましょう。',[1,0],[0,1]);
+  if(esClean==='Me puede enseñar esto') return mk(['これを','見せていただけますか'],['Me puede enseñar','esto'],'日本語では「これを／見せていただけますか」と分けると自然です。スペイン語の <em>esto</em>（これ）は文末に来ますが、色は意味が対応するように付けています。<em>me</em> は「私に」を表します。',[1,0],[0,1]);
+  if(esClean==='Cuál es el número de la habitación') return mk(['部屋番号は','何ですか'],['Cuál es','el número de la habitación'],'日本語では「部屋番号は／何ですか」と並べます。<em>el número</em> は「番号」、<em>de la habitación</em> は「部屋の」です。<em>de</em> が「何の番号か」を説明し、<em>el número de la habitación</em> 全体で「部屋番号」になります。',[1,0],[0,1]);
+  if(esClean==='Cuál es la puerta de embarque') return mk(['搭乗口は','何番ですか'],['Cuál es','la puerta de embarque'],'日本語では「搭乗口は／何番ですか」と自然に分けています。<em>la puerta</em> は「ドア・口」、<em>de embarque</em> は「搭乗の」です。<em>de</em> が「何の puerta か」を説明し、全体で「搭乗口」を表します。',[1,0],[0,1]);
+  if(esClean==='Me lo puede poner para llevar') return mk(['それを','持ち帰り用に','していただけますか'],['Me lo','puede poner','para llevar'],'日本語では「それを／持ち帰り用に／していただけますか」と考えると自然です。<em>me lo</em> は「それを私のために」、<em>puede poner</em> は「用意していただけますか」、<em>para llevar</em> は「持ち帰るために」です。スペイン語と日本語で語順が違うため、色は意味が対応するように付けています。',[0,2,1],[0,1,2]);
+  const override=alignmentOverrides[es];
+  if(override){
+    const jaParts=override.ja.map((t,i)=>({t,c:i%colors.length}));
+    const esParts=override.es.map((t,i)=>({t,c:i%colors.length}));
+    return {ja:jaParts,es:esParts,note:override.note||'',jaSuffix:(ja.match(/[？?。.!！]+$/)||[''])[0]};
+  }
+  // Numbers and one-word greetings are intentionally one meaningful unit.
+  if(item.cat==='数字' || /^(Hola|Buenos días\.?|Adiós\.?|Sí\.?|No\.?|Gracias\.?|De nada\.?|Perdón\.?|Lo siento\.?|Por favor\.?|Buen viaje\.?|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciséis|diecisiete|dieciocho|diecinueve|veinte|veintiuno|veintidós|veintitrés|veinticuatro|veinticinco|treinta|cuarenta|cincuenta|cien|doscientos|trescientos|mil|un millón)$/i.test(esClean)) return mk([jpClean],[esClean]);
+  // Location questions: the question frame and the place noun phrase are separate units.
+  if((m=esClean.match(/^Dónde está (.+)$/i)) && /どこですか/.test(jpClean)){
+    let subject=jpClean.replace(/はどこですか$/,'').trim();
+    if(subject) return mk(['どこですか',subject],[ 'Dónde está',cleanPart(m[1]) ],'「Dónde está」は「どこにありますか」、「el/la + 名詞」などは場所の名前をひとまとまりにします。冠詞は名詞とセットで覚えると自然です。');
+  }
+  if((m=esClean.match(/^Dónde está (.+)$/i)) && /どこですか/.test(jpClean)) return mk(['どこですか',jpClean.replace(/どこですか$/,'')],[ 'Dónde está',cleanPart(m[1]) ]);
+  // Where-from / where-to questions.
+  if(esClean.startsWith('De dónde sale ') && /どこから出ますか/.test(jpClean)){
+    const subject=jpClean.replace(/どこから出ますか$/,'').trim();
+    return mk(['どこから出ますか',subject||'この便'],['De dónde sale',cleanPart(esClean.replace(/^De dónde sale /,''))],'「de dónde」は「どこから」、「sale」は「出発する／出る」。疑問詞と動詞を一緒に覚えると使いやすい表現です。');
+  }
+  // Existence / availability.
+  if((m=esClean.match(/^Hay (.+)$/i))){
+    const subject=jpClean.replace(/はありますか$|はいますか$|ありますか$|いますか$/,'').trim();
+    if(subject) return mk(['ありますか',subject],['Hay',cleanPart(m[1])],'hay は「あります／います」。スペイン語では hay と知りたい物を組み合わせます。冠詞が付く場合は名詞句ごと覚えましょう。');
+  }
+  if((m=esClean.match(/^¿?Hay (.+)$/i)) && /ありますか/.test(jpClean)) return mk(['ありますか',jpClean.replace(/ありますか$/,'')],['Hay',cleanPart(m[1])]);
+  // Time and quantity questions.
+  if((m=esClean.match(/^A qué hora (?:es|sale|llega)\s*(.*)$/i))){
+    const subj=cleanPart(m[1]); const jpSub=jpClean.replace(/は何時ですか$|何時に出発しますか$|何時に到着しますか$/,'').trim();
+    if(/何時/.test(jpClean)) return mk([jpClean.match(/何時に出発しますか|何時に到着しますか|何時ですか/)?.[0]||'何時ですか',jpSub||subj],[`A qué hora ${esClean.match(/^A qué hora (es|sale|llega)/i)[1]}`,subj].filter(Boolean),'「A qué hora」は「何時に」。後ろの動詞を変えると、出発時刻・到着時刻・開始時刻を尋ねられます。');
+  }
+  if((m=esClean.match(/^Cuánto cuesta (.+)$/i)) && /いくらですか/.test(jpClean)){
+    const subject=jpClean.replace(/はいくらですか$/,'').replace(/^これは/,'これ').trim();
+    return mk(['いくらですか',subject||'これ'],['Cuánto cuesta',cleanPart(m[1])],'「Cuánto cuesta」は「いくらですか」。物を指しながら「¿Cuánto cuesta esto?」と言えば値段を尋ねられます。');
+  }
+  if(/^Cuánto tarda$/i.test(esClean) || /^Cuánto tardamos aproximadamente$/i.test(esClean)) return mk([jpClean],[esClean],'「Cuánto」は「どれくらい」、「tardar」は時間がかかるという意味です。所要時間を尋ねるまとまりとして覚えましょう。');
+  if((m=esClean.match(/^Cuál es (.+)$/i))){
+    if(/何番ですか|何号室ですか|何ですか/.test(jpClean)) return mk([jpClean.match(/何番ですか|何号室ですか|何ですか/)[0],jpClean.replace(/何番ですか|何号室ですか|何ですか/,'').trim()].filter(Boolean),['Cuál es',cleanPart(m[1])],'「Cuál es」は「どれですか／何ですか」と選択や情報を尋ねる型です。後ろの名詞句と一緒に使います。');
+  }
+  if((m=esClean.match(/^Qué (.+)$/i)) && /何ですか|おすすめは何ですか/.test(jpClean)){
+    if(/^Qué recomienda/i.test(esClean)) return mk(['何を','おすすめしますか'],['Qué','recomienda'],'「Qué」は「何」、「recomienda」は「（あなたは）勧めます」。店員さんへの質問では主語の「あなた」を言わなくても丁寧に尋ねられます。');
+    if(/^Qué es esto/i.test(esClean)) return mk(['これは何','ですか'],['Qué es','esto'],'「Qué es」は「何ですか」、「esto」は「これ」。スペイン語では「何ですか」→「これ」の順になるため、意味のまとまりで対応させています。');
+  }
+  // Want / need: link the verb frame to the Japanese desire/need, and the remainder to the requested action or thing.
+  if((m=esClean.match(/^Quiero (.+)$/i))){
+    const rest=cleanPart(m[1]);
+    if(/したいです$/.test(jpClean)){
+      const action=jpClean.replace(/したいです$/,'').trim();
+      if(/^ir\b/i.test(rest) || /^volver\b/i.test(rest)) return mk(['行きたいです',action||'目的地'],['Quiero '+rest.split(/\s+/)[0],cleanPart(rest.replace(/^(ir|volver)\s*/i,''))].filter(Boolean),'「Quiero + 動詞」は「〜したいです」。行き先や動作を表す部分を変えると、いろいろな希望を伝えられます。');
+      return mk(['したいです',action||jpClean],['Quiero',rest],'「Quiero」は「私は〜したい／欲しい」。後ろに動詞を続けると「〜したい」、名詞を続けると「〜が欲しい」です。');
+    }
+  }
+  if((m=esClean.match(/^(Necesito|Necesitamos) (.+)$/i))){
+    const subj=jpClean.replace(/が必要です$|は必要です$/,'').trim();
+    if(/必要です$/.test(jpClean)) return mk(['必要です',subj||cleanPart(m[2])],[m[1],cleanPart(m[2])],'「Necesito」は「私は必要です」、「Necesitamos」は「私たちは必要です」。必要な物・人を後ろに続けます。');
+  }
+  // Requests and permission: group the request frame, then the meaningful object/action.
+  if((m=esClean.match(/^¿(Puede|Pueden|Podemos|Puedo) (.+)$/i))){
+    const rest=cleanPart(m[2]);
+    if(/もらえますか|できますか|てもいいですか/.test(jpClean)){
+      let tail=jpClean.replace(/してもらえますか|できますか|てもいいですか|てもらえますか$/,'').trim();
+      if(/^¿Puedo /i.test(esClean) && /てもいいですか/.test(jpClean)) return mk(['てもいいですか',tail||'ここで'],['Puedo',rest],'「Puedo」は「私は〜できますか／〜してもいいですか」。自分が何かをしてよいか尋ねるときに使います。');
+      if(/^¿Podemos /i.test(esClean)) return mk(['できますか',tail||''],['Podemos',rest],'「Podemos」は「私たちは〜できますか」。同行者と一緒に何かをしたいときに使える形です。');
+      if(/^¿Puede|^¿Pueden/i.test(esClean)) return mk(['してもらえますか',tail||''],[m[1],rest],'「Puede」は相手に丁寧に「〜していただけますか」と尋ねる形です。「Pueden」は複数の相手に使います。');
+    }
+  }
+  if((m=esClean.match(/^¿Me puede (.+)$/i))){
+    if(/してもらえますか|ください/.test(jpClean)) return mk(['してもらえますか',jpClean.replace(/してもらえますか|ください$/,'').trim()||'これ'],['Me puede',cleanPart(m[1])],'「Me puede…」は「私に〜していただけますか」。me は「私に」を表し、動詞と一緒に依頼の形を作ります。');
+  }
+  // Polite requests ending in por favor: articles stay attached to their nouns; the courtesy phrase is its own unit.
+  if(/,?\s*por favor\.?$/i.test(es)){
+    const core=es.replace(/,?\s*por favor\.?$/i,'').replace(/^[¿¡]+/,'').replace(/[?!.！]+$/,'').trim();
+    const jp=jpClean;
+    let jpParts=null, esParts=null;
+    if(/ください$/.test(jp)){
+      const obj=jp.replace(/を?ください$/,'').replace(/を$/,'').trim();
+      if(obj){jpParts=[obj,'ください'];esParts=[core,'por favor'];}
+    } else if(/お願いします$/.test(jp)){
+      const obj=jp.replace(/を?お願いします$/,'').replace(/を$/,'').trim();
+      if(obj){jpParts=[obj,'お願いします'];esParts=[core,'por favor'];}
+    } else if(/してください$/.test(jp)){
+      const obj=jp.replace(/してください$/,'').trim();jpParts=[obj,'してください'];esParts=[core,'por favor'];
+    }
+    if(jpParts && esParts) return mk(jpParts,esParts,'「por favor」は「お願いします」。前の語句（物や動作）と分けて覚えると、依頼の内容と丁寧さの両方が分かります。名詞には冠詞を付けたまま、名詞句として覚えましょう。');
+  }
+  // Subject + state / action sentences.
+  if((m=esClean.match(/^(Este vuelo|Este tren|Este autobús) (.+)$/i))){
+    const first=jpClean.match(/^この便|^この電車|^このバス/)?.[0]||'これ';
+    const rest=jpClean.replace(/^この便|^この電車|^このバス/,'').replace(/^は/,'').trim();
+    return mk([first,rest],[m[1],cleanPart(m[2])],'「este」は「この」。名詞と一緒に「este vuelo（この便）」のようなひとまとまりで覚えます。');
+  }
+  if((m=esClean.match(/^(La habitación|El aire acondicionado|La calefacción|La recepción|El desayuno|La cuenta|La propina) (.+)$/i))){
+    const first=jpClean.match(/^[^はがをにで、]+/)?.[0]||jpClean;
+    const rest=jpClean.slice(first.length).replace(/^[はがをにで、]/,'').trim();
+    if(rest) return mk([first,rest],[m[1],cleanPart(m[2])],'「el／la」は名詞の前に付く定冠詞です。スペイン語では名詞の性に合わせて el / la を使うため、冠詞を名詞とセットで覚えるのがおすすめです。');
+  }
+  if((m=esClean.match(/^No (.+)$/i)) && /ません|ないです|不要|分かりません|迷いました|盗まれました/.test(jpClean)){
+    const neg=jpClean.match(/^(.*?)(ません|ないです|不要|分かりません|迷いました|盗まれました)/);
+    if(neg) return mk(['〜ません／〜ない',jpClean.replace(/^(.*?)(ません|ないです|不要|分かりません|迷いました|盗まれました).*$/,'$1').trim()||jpClean],[ 'No',cleanPart(m[1]) ],'文頭の「No」は否定を表します。日本語の否定表現と同じく、何を否定しているかを後ろの語句と合わせて捉えましょう。');
+  }
+  // Article + noun phrases are kept together rather than assigning a line to each small word.
+  if((m=esClean.match(/^(el|la|los|las|un|una|unos|unas)\s+(.+)$/i)) && !/[¿]/.test(es)){
+    return mk([jpClean],[`${m[1]} ${cleanPart(m[2])}`],'冠詞（el / la / un / una など）は、後ろの名詞と一緒にひとまとまりで覚えます。冠詞だけを日本語に訳す必要はないことも多いです。');
+  }
+  // Fallback: when a reliable correspondence cannot be established, use one whole-phrase line rather than misleading word-by-word lines.
+  return mk([jpClean],[esClean],'下線は一語ずつの直訳ではなく、意味のまとまりを示しています。冠詞などは後ろの名詞と一緒に覚え、日本語と語順が異なるところはフレーズ全体の意味で捉えましょう。');
+}
+function underlineHtml(parts){return parts.map(p=>`<span class="word-chip" style="--chip-color:${colors[p.c%colors.length]}"><span class="word">${esc(p.t)}</span><span class="under"></span></span>`).join('');}
+function underlineLargeHtml(parts,suffix=''){return parts.map(p=>`<span class="ja-word-chip" style="--chip-color:${colors[p.c%colors.length]}">${esc(p.t)}</span>`).join('')+(suffix?`<span class="ja-punctuation">${esc(suffix)}</span>`:'');}
+function explanationHtml(item){
+ const e=item.es.trim(), j=item.ja.trim(), cat=item.cat;
+ const clean=x=>String(x).replace(/[¿?¡!.,。！？]$/g,'');
+ const escText=x=>esc(String(x));
+ let out=[];
+ const add=(s)=>out.push(`<p>${s}</p>`);
+ const title=(s)=>out.push(`<p><strong>${s}</strong></p>`);
+ const usage=(s)=>{title('🌍 旅行での使い方');add(s)};
+ const pattern=(s)=>{title('⭐ 覚えておきたい型');add(s)};
+ let m;
+ // Give the number cards their own practical explanation rather than a generic sentence template.
+ // Phrase-specific explanations for high-frequency patterns, with real grammatical meaning.
+ if(cat==='数字'){
+   const numberMap={'uno':'1（ひとつ）','dos':'2（ふたつ）','tres':'3（みっつ）','cuatro':'4','cinco':'5','seis':'6','siete':'7','ocho':'8','nueve':'9','diez':'10','once':'11','doce':'12','trece':'13','catorce':'14','quince':'15','dieciséis':'16','diecisiete':'17','dieciocho':'18','diecinueve':'19','veinte':'20','veintiuno':'21','veintidós':'22','veintitrés':'23','veinticuatro':'24','veinticinco':'25','treinta':'30','cuarenta':'40','cincuenta':'50','cien':'100','doscientos':'200','trescientos':'300','mil':'1,000','dos mil':'2,000','diez mil':'10,000','cien mil':'100,000','un millón':'1,000,000'};
+   const value=numberMap[e.toLowerCase()]||j;
+   title('① 数字の意味');add(`<strong>${escText(e)}</strong> は <strong>${escText(value)}</strong> を表します。買い物の値段、時刻、人数、電車やバスの番号など、旅行中に何度も出てくる大切な言葉です。`);
+   title('② 発音の目安');add(`カタカナでは <strong>${escText(item.kana||'')}</strong> と読みます。音声を聞きながら、数字を見て声に出し、数字を聞いて意味を思い出す練習をしましょう。`);
+   title('③ 数字の使い方');add('スペイン語では、値段や時刻を聞くときに数字を聞き取ることが大切です。レストランで人数を伝えるときは <em>Somos tres</em>（3人です）、値段を尋ねるときは <em>¿Cuánto cuesta?</em>（いくらですか？）のように使います。');
+   title('④ 覚えるポイント');add(e==='dieciséis'||e==='diecisiete'||e==='dieciocho'||e==='diecinueve'?'16〜19は <em>dieci-</em> に数字の名前が続く形です。16の <em>dieciséis</em> にはアクセント記号が付くことも覚えましょう。':e.startsWith('veinti')?'21〜29は <em>veinti-</em> から始まります。20の <em>veinte</em> と似ているので、まとめて練習すると覚えやすいです。':e==='doscientos'||e==='trescientos'?'200は <em>doscientos</em>、300は <em>trescientos</em>。100の <em>cien</em> と合わせて、値段や大きな数を読む練習をしましょう.':e.includes('mil')||e==='un millón'?'大きな数では <em>mil</em>＝1,000、<em>un millón</em>＝100万です。値段を聞くときは、数字のあとに通貨の単位が続くことがあります。':'まずは数字と音をセットで覚えましょう。声に出して3回読み、そのあと日本語の数字を見てスペイン語を思い出すと定着しやすくなります。');
+   usage('お店で値段を確認するとき、レストランで人数を伝えるとき、電車やバスの時刻・番号を確認するときに役立ちます。');
+   pattern('数字は単独で覚えるだけでなく、<strong>値段・時刻・人数</strong>のどれかと組み合わせて練習すると、旅行中に聞き取りやすくなります。');
+ } else if(e==='¿Qué recomienda?'){
+   title('① ¿Qué（ケ）');add('「何が？」「何を？」と尋ねる疑問詞です。相手に選択肢や提案を求めるときに使います。');
+   title('② recomienda（レコミエンダ）');add('「おすすめします」という意味です。もとの動詞は <strong>recomendar（レコメンダール）＝おすすめする</strong>。ここでは店員さんなど、相手が何かを勧める場面で使う形です。');
+   title('③ 文の組み立て');add('<strong>¿Qué ＋ recomienda?</strong> を直訳すると「何をおすすめしますか？」。日本語として自然にすると「何がおすすめですか？」になります。スペイン語では「何を」にあたる <em>Qué</em> を文の先頭に置きます。');
+   usage('レストランでメニューを見ながら、店員さんにそのまま尋ねられます。丁寧に聞きたいときにも使いやすい表現です。');
+   title('似た表現も覚えましょう');add('<strong>¿Qué es esto?</strong>＝これは何ですか？<br><strong>¿Qué recomienda?</strong>＝何がおすすめですか？<br><strong>¿Qué quiere?</strong>＝何が欲しいですか？／何になさいますか？');
+   pattern('<strong>¿Qué…?</strong> は「何が？／何を？」と尋ねる基本の型です。まずは <em>¿Qué recomienda?</em> をひとかたまりで覚え、レストランで実際に使ってみましょう。');
+ } else if(e==='¿Qué es esto?'){
+   title('① ¿Qué（ケ）');add('「何？」という意味の疑問詞です。');
+   title('② es（エス）');add('ser（セール）＝「〜です」を表す動詞の形です。物の正体や説明を尋ねる文でよく使います。');
+   title('③ esto（エスト）');add('「これ」という意味です。目の前にある料理や物を指さしながら使えます。');
+   title('文全体では');add('<strong>¿Qué + es + esto?</strong>＝「これは何ですか？」。スペイン語の語順をそのまま見ると「何ですか、これは？」という組み立てです。');
+   usage('メニューの料理名がわからないとき、お店で見慣れない商品を見つけたときなどに便利です。指さしながら言うと伝わりやすくなります。');
+   pattern('<strong>¿Qué es…?</strong>＝「…は何ですか？」。指している物を <em>esto</em>（これ）にすれば、まずこの一言で質問できます。');
+ } else if((m=e.match(/^¿Dónde está (.+?)\??$/i))){
+   const noun=m[1].replace(/[.!?]+$/,'');
+   const nmap={'el tren':'電車','la estación':'駅','el baño':'トイレ','el hotel':'ホテル','la salida':'出口','el ascensor':'エレベーター','el desayuno':'朝食','el hospital':'病院','la farmacia':'薬局','la puerta de embarque':'搭乗口','la parada de taxis':'タクシー乗り場','el mostrador de facturación':'チェックインカウンター','la recogida de equipaje':'手荷物受取所','mi habitación':'私の部屋','la oficina de turismo':'観光案内所'};
+   title('① ¿Dónde（ドンデ）');add('「どこ」という意味です。場所を尋ねるときに使う疑問詞です。');
+   title('② está（エスタ）');add('<strong>estar（エスタール）＝ある・いる</strong> の形です。人や物が「どこにある／いるか」を尋ねるときによく使います。');
+   title(`③ ${escText(noun)}`);add(`ここが場所や物の名前です。${escText(nmap[noun]||'日本語の質問で尋ねている場所・物')}を表します。<em>el</em> や <em>la</em> は名詞の前につく定冠詞で、英語の the に近い働きをします。スペイン語では名詞の性に合わせて使い分けます。`);
+   title('文の組み立て');add('<strong>¿Dónde + está + 場所？</strong> を直訳すると「どこにありますか、その場所は？」という順番です。自然な日本語では「〜はどこですか？」になります。');
+   usage('駅、トイレ、ホテル、搭乗口など、旅行中に場所を探す場面で大活躍します。');
+   pattern('<strong>¿Dónde está…?</strong>＝「…はどこですか？」。<em>el baño</em>（トイレ）、<em>el hotel</em>（ホテル）、<em>la estación</em>（駅）のように、最後の部分を入れ替えて使えます。');
+ } else if((m=e.match(/^¿Cuánto cuesta (.+?)\??$/i))){
+   title('① ¿Cuánto（クアント）');add('「いくら？」「どれくらい？」という意味です。値段を尋ねるときによく使います。');
+   title('② cuesta（クエスタ）');add('<strong>costar（コスタール）＝値段がする</strong> という動詞の形です。<em>cuesta</em> は「（それは）〜の値段です」という意味になります。');
+   title('③ '+escText(m[1]));add('値段を知りたい物を示す部分です。<em>esto</em> は「これ」なので、<em>¿Cuánto cuesta esto?</em> で「これはいくらですか？」になります。');
+   title('文の組み立て');add('<strong>¿Cuánto cuesta…?</strong>＝「…はいくらですか？」。スペインの市場やお店で、商品を指しながら使える便利な型です。');
+   usage('値札が見当たらない商品や、量り売りの商品について確認したいときに使えます。');
+   pattern('<strong>¿Cuánto cuesta…?</strong> をセットで覚え、最後に商品名や <em>esto</em>（これ）を続けましょう。');
+ } else if((m=e.match(/^¿Cuál es (.+?)\??$/i))){
+   title('① ¿Cuál（クアル）');add('「どれ？」「何？」と、選択肢や情報を尋ねる疑問詞です。');
+   title('② es（エス）');add('ser（セール）＝「〜です」の形です。');
+   title('③ '+escText(m[1]));add('ここで知りたい情報を示しています。例えば <em>la puerta de embarque</em> は「搭乗口」、<em>el número</em> は「番号」です。');
+   title('文の組み立て');add('<strong>¿Cuál es…?</strong> は「…は何ですか？／どれですか？」という質問の型です。');
+   usage('搭乗口や部屋番号など、特定の情報を確認したいときに使えます。');
+   pattern('<strong>¿Cuál es…?</strong> をひとかたまりで覚えると、後ろの名詞を変えて別の質問にも応用できます。');
+ } else if(e.startsWith('¿A qué hora')){
+   title('① ¿A qué hora…?（ア ケ オラ）');add('「何時に？」という意味の決まった言い方です。時刻を確認するときに使います。');
+   title('② hora（オラ）');add('「時間・時刻」という意味です。');
+   title('③ 文の後半');add(`後半で何の時刻を尋ねているかを示します。今回の日本語は「${escText(clean(j))}」です。`);
+   title('文の組み立て');add('<strong>¿A qué hora + 動詞など…?</strong>＝「何時に…？」。日本語と語順が違っても、まずこの出だしを覚えると便利です。');
+   usage('朝食の時間、ツアーの出発時刻、お店の開店時間などを尋ねるときに使えます。');
+   pattern('「何時ですか？」と聞きたいときは <strong>¿A qué hora…?</strong> から始めましょう。');
+ } else if(e.startsWith('Quiero ')){
+   const rest=e.slice(7).replace(/[.!?]$/,'');
+   title('① Quiero（キエロ）');add('「私は〜したいです」「〜が欲しいです」という意味です。もとの動詞は <strong>querer（ケレール）＝欲する・〜したい</strong> です。');
+   title('② '+escText(rest));
+   if(rest.startsWith('ir ')) add('ここでは <em>ir</em>（イル）＝「行く」という動詞が続いています。<strong>Quiero ir…</strong> で「…へ行きたいです」となります。');
+   else if(rest.startsWith('hacer ')) add('<em>hacer</em>（アセール）は「する・行う」という動詞です。<strong>hacer el check-in</strong> のように、手続きなどを「する」と表せます。');
+   else if(rest.startsWith('facturar ')) add('<em>facturar</em> は空港で荷物を預ける／チェックインすることを表す動詞です。');
+   else add('この部分で、したいことや欲しいものを伝えています。動詞が続けば「〜したい」、名詞が続けば「〜が欲しい」という意味になりやすい形です。');
+   title('文の組み立て');add('<strong>Quiero + 動詞</strong>＝「〜したいです」、<strong>Quiero + 名詞</strong>＝「〜が欲しいです」。自分の希望を伝える基本パターンです。');
+   usage('ホテルで手続きしたいとき、行きたい場所を伝えたいときなど、自分から希望を伝える場面で使えます。');
+   pattern('<strong>Quiero…</strong> を覚えたら、後ろを <em>ir</em>（行く）、<em>hacer</em>（する）などに入れ替えてみましょう。');
+ } else if(e.startsWith('¿Puede ')||e.startsWith('¿Pueden ')||e.startsWith('¿Puedo ')){
+   const word=e.split(/\s+/)[0].replace('¿','');
+   const meaning=word==='Puede'?'「あなたは〜できますか？」。丁寧な依頼では「〜していただけますか？」':word==='Pueden'?'「あなた方は〜できますか？」。複数の相手やお店のスタッフに向けた言い方です':'「私は〜できますか？」';
+   title(`① ${escText(word)}（${word==='Pueden'?'プエデン':word==='Puedo'?'プエド':'プエデ'}）`);add(`${meaning}。もとの動詞 <strong>poder（ポデール）＝できる</strong> が主語に合わせて変化した形です。`);
+   title('② 動詞の部分');add('後ろに「してほしいこと」や「したいこと」が続きます。動詞が原形で続く形は、依頼や可能かどうかを尋ねるときに便利です。');
+   title('文全体では');add(`「${escText(clean(j))}」と尋ねる表現です。疑問文のイントネーションで、最後を少し上げると質問だと伝わりやすくなります。`);
+   usage('ホテルのスタッフにタクシーを呼んでもらう、荷物を預かってもらうなど、相手にお願いしたい場面で役立ちます。');
+   pattern('<strong>¿Puede…?</strong>＝「〜していただけますか？」。丁寧にお願いしたいときの便利な型です。');
+ } else if(e.startsWith('¿Hay ')){
+   title('① ¿Hay…?（アイ）');add('「〜はありますか？」という意味です。<em>hay</em> は「ある・いる」を表し、物やサービスの有無を尋ねるときに使います。');
+   title('② '+escText(clean(e).replace(/^Hay\s*/i,'')));add('ここには、あるかどうかを知りたいものが続きます。Wi-Fi、案内、設備など、いろいろなものに応用できます。');
+   title('文の組み立て');add('<strong>¿Hay + 名詞?</strong>＝「〜はありますか？」。<em>hay</em> は単数・複数で形が変わらないので、そのまま覚えて使える便利な表現です。');
+   title('似た表現も覚えましょう');add('<strong>¿Hay Wi-Fi?</strong>＝Wi-Fiはありますか？<br><strong>¿Hay un baño?</strong>＝トイレはありますか？<br><strong>¿Tiene Wi-Fi?</strong>＝（あなた／施設は）Wi-Fiを備えていますか？');
+   usage('ホテルでWi-Fiがあるか、駅で案内があるか、観光施設にオーディオガイドがあるかなどを確認できます。');
+   pattern('<strong>¿Hay…?</strong> を覚えて、後ろの名詞を知りたいものに変えましょう。設備やサービスの有無を尋ねる基本の型です。');
+ } else if(e.startsWith('¿Qué ')){
+   const rest=clean(e).replace(/^Qué\s*/,'');
+   title('① ¿Qué（ケ）');add('「何が？」「何を？」という意味の疑問詞です。何かを尋ねたり、相手の希望を確認したりするときに使います。');
+   title('② '+escText(rest));add(`この部分が質問の内容を表します。日本語では「${escText(clean(j))}」という意味になります。動詞の形や後ろの言葉によって、何を尋ねているかが決まります。`);
+   title('文の組み立て');add('<strong>¿Qué…?</strong> は「何が？／何を？」と尋ねる基本の型です。スペイン語では疑問詞を文の先頭に置くことがよくあります。例えば <em>¿Qué andén es?</em> は「何番線ですか？」という意味で、<em>andén</em> が「ホーム・番線」を表します。');
+   title('似た表現も覚えましょう');add('<strong>¿Qué es esto?</strong>＝これは何ですか？<br><strong>¿Qué recomienda?</strong>＝何がおすすめですか？<br><strong>¿Qué andén es?</strong>＝何番線ですか？');
+   usage('メニューや商品について質問したいとき、駅で番線を確認したいときなどに役立ちます。');
+   pattern('<strong>¿Qué…?</strong> を出だしとして覚え、後ろの動詞や名詞を組み合わせましょう。');
+ } else if(e.startsWith('¿Tiene ')){
+   title('① ¿Tiene…?（ティエネ）');add('「お持ちですか？」「ありますか？」という意味です。<strong>tener（テネール）＝持っている</strong> の形で、お店の人や相手に丁寧に尋ねるときに使います。');
+   title('② '+escText(clean(e).replace(/^Tiene\s*/i,'')));add('ここには、あるかどうか尋ねたい物や条件が続きます。サイズ、色、メニューなどに使えます。');
+   title('文の組み立て');add('<strong>¿Tiene + 名詞…?</strong>＝「〜はありますか？」。直訳すると「あなたは〜を持っていますか？」ですが、お店では「〜はありますか？」という自然な意味になります。');
+   title('似た表現も覚えましょう');add('<strong>¿Tiene otro color?</strong>＝別の色はありますか？<br><strong>¿Tiene una talla más grande?</strong>＝もっと大きいサイズはありますか？<br><strong>¿Tiene la carta en inglés?</strong>＝英語のメニューはありますか？');
+   usage('商品を探しているときは、欲しい色やサイズを続けると具体的に尋ねられます。レストランで英語のメニューがあるか確認する場合にも使えます。');
+   pattern('<strong>¿Tiene…?</strong> を覚えれば、お店で在庫や選択肢を尋ねるほか、ホテルの設備やレストランのメニューを確認するときにも応用できます。');
+ } else if(e.startsWith('Tengo ')||e.startsWith('Tenemos ')){
+   const plural=e.startsWith('Tenemos '), word=plural?'Tenemos（テネモス）':'Tengo（テンゴ）', rest=e.slice(plural?8:6);
+   title(`① ${word}`);add(plural?'tener（テネール）＝「持っている」の形で、「私たちは持っています」という意味です。':'tener（テネール）＝「持っている」の形で、「私は持っています」という意味です。');
+   title('② '+escText(rest));add('<em>una reserva</em> は「予約」、<em>a nombre de…</em> は「〜という名前で」という意味です。名詞や補足を続けて、何を持っているのか、どんな状況なのかを伝えます。');
+   title('文の組み立て');add(`<strong>${plural?'Tenemos':'Tengo'} + 名詞</strong> で「${plural?'私たちは':'私は'}〜を持っています」。予約があることを伝えるときなどに使えます。`);
+   usage('ホテルやレストランの受付で予約の有無を伝えるときに便利です。');
+   pattern('自分一人なら <strong>Tengo…</strong>、家族など複数人なら <strong>Tenemos…</strong> を使う、と覚えておきましょう。');
+ } else if(/,\s*por favor\.?$/i.test(e) || e.toLowerCase().endsWith('por favor')){
+   const core=clean(e.replace(/,?\s*por favor\.?$/i,''));
+   title('① '+escText(core));add(`ここで欲しい物やお願いしたい内容を伝えます。日本語では「${escText(clean(j))}」という場面で使います。`);
+   title('② por favor（ポル ファボール）');add('「お願いします」という意味です。依頼や注文を丁寧にするための大切なひと言です。');
+   title('文の組み立て');add('<strong>欲しい物・お願い + por favor</strong> で、短くても自然な注文になります。文を全部作らなくても、指さしながら使えるのが便利です。');
+   usage('レストランで水やコーヒーを頼むとき、お店で何かをお願いするときに使えます。最初に <em>por favor</em> を覚えるだけでも、さまざまな場面で役立ちます。');
+   pattern('<strong>por favor</strong> を添えると丁寧な印象になります。注文のあとに <em>gracias</em>（ありがとう）も言えると、さらに自然です。');
+ } else if(e==='¿Es gratis?'){
+   title('① ¿Es…?（エス）');add('「〜ですか？」と尋ねる形です。<em>es</em> は ser（セール）＝「〜です」の形です。');
+   title('② gratis（グラティス）');add('「無料の／無料で」という意味です。入場料やサービスの料金を確認するときに使えます。');
+   title('文の組み立て');add('<strong>¿Es gratis?</strong>＝「無料ですか？」。とても短いので、施設やサービスを利用する前に覚えておくと便利です。');
+   title('似た表現も覚えましょう');add('<strong>¿Es gratis?</strong>＝無料ですか？<br><strong>¿Cuánto cuesta?</strong>＝いくらですか？<br><strong>¿Está incluido?</strong>＝含まれていますか？');
+   usage('入場料、Wi-Fi、荷物預かり、オーディオガイドなど、料金がかかるか不明なときに使えます。答えが <em>Sí</em>（はい）なら無料、<em>No</em>（いいえ）なら有料の可能性があるので、必要なら値段も尋ねましょう。');
+   pattern('<strong>¿Es + 形容詞?</strong> は「〜ですか？」という型です。<em>gratis</em>（無料）を別の言葉に変える応用もできます。');
+ } else if(e.startsWith('No ')){
+   title('① No（ノ）');add('文の前につけると「〜ではありません」「〜しません」という否定になります。スペイン語では、否定したい動詞の前に <em>no</em> を置くのが基本です。');
+   title('② 文の後半');add(`後半で、何をしないのか・何がないのかを伝えます。全体では「${escText(clean(j))}」という意味です。`);
+   title('文の組み立て');add('<strong>No + 動詞など</strong> の形で否定を表します。短い <em>no</em> を聞き取れると、相手の返事も理解しやすくなります。');
+   title('比べて覚えましょう');add('<strong>Entiendo.</strong>＝わかります。<br><strong>No entiendo.</strong>＝わかりません。<br><strong>Hay agua.</strong>＝水があります。<br><strong>No hay agua.</strong>＝水がありません。');
+   usage('必要ないことを伝えたり、設備が動かない・何かがないことを説明したりするときに使います。困ったときは、短く <em>No entiendo</em>（わかりません）と伝えるだけでも役立ちます。');
+   pattern('<strong>No</strong> は否定の合図。動詞の前に置くのが基本です。相手の返事に <em>no</em> が聞こえたら、否定の意味かもしれないと意識しましょう。');
+ } else if(e.startsWith('¿De dónde')){
+   title('① ¿De dónde…?（デ ドンデ）');add('<strong>¿De dónde…?</strong> は「どこから？」という意味です。<em>dónde</em>（どこ）の前に <em>de</em>（〜から）が付いて、出発地や出身地など「起点」を尋ねます。');
+   title('② 動詞と後ろの言葉');add(`後半では「何がどこから出るのか」を伝えています。今回の日本語は「${escText(clean(j))}」です。動詞の意味を合わせて、どこから出発するのかを確認する質問になります。`);
+   title('③ 文の組み立て');add('<strong>¿De dónde + 動詞…?</strong>＝「どこから…？」。<em>¿De dónde eres?</em>（どこの出身ですか？）も同じ出だしです。');
+   usage('空港で便の出発場所を確認したいときや、相手の出身地を尋ねるときに使えます。');
+   pattern('<strong>¿De dónde…?</strong> を「どこから？」のセットとして覚えましょう。');
+ } else if(e.startsWith('¿Cómo')){
+   title('① ¿Cómo（コモ）');add('「どのように？」「どう？」という意味です。方法や状態を尋ねるときに使います。');
+   title('② 後ろの言葉');add(`後ろに動詞や名詞が続いて、何をどのように知りたいのかが決まります。今回の意味は「${escText(clean(j))}」です。`);
+   title('③ 文の組み立て');add('<strong>¿Cómo…?</strong> は「どうやって？／どんな状態？」と尋ねる型です。<em>¿Cómo se llega…?</em> なら「どうやって行けますか？」という意味になります。');
+   title('似た表現も覚えましょう');add('<strong>¿Cómo se llama este lugar?</strong>＝この場所は何という名前ですか？<br><strong>¿Cómo llego al centro?</strong>＝市内中心部へはどう行けばいいですか？');
+   usage('道順や方法を確認したいとき、相手の様子を尋ねたいときに使います。');
+   pattern('<strong>¿Cómo…?</strong>＝「どう？」。質問したい内容を後ろに続けます。方法を尋ねるなら「どうやって」、状態を尋ねるなら「どんな感じ」と考えると理解しやすいです。');
+ } else if(e.startsWith('¿Está ')||e.startsWith('¿Este ')||e.startsWith('¿La ')||e.startsWith('¿El ')){
+   title('① 文の最初の言葉');add('疑問文の最初にある <em>¿</em> は「質問が始まります」という合図です。<em>está</em> は <em>estar</em>（ある・いる・状態にある）の形、<em>es</em> は <em>ser</em>（〜です）の形です。');
+   title('② 状態や対象を表す部分');add(`後半で、何についてどんな状態かを尋ねています。今回の日本語は「${escText(clean(j))}」です。<em>estar</em> は場所や一時的な状態、<em>ser</em> は性質や説明に使われることが多い、と覚えると整理しやすいです。`);
+   title('③ 文の組み立て');add('スペイン語では、動詞を文頭に置いた疑問文もよく使います。疑問文の形と日本語訳をセットで覚えると、似た質問にも応用できます。');
+   usage(`「${escText(clean(j))}」と確認したい場面で使います。相手の返事にある <em>sí</em>（はい）や <em>no</em>（いいえ）も聞き取れるようにしましょう。`);
+   pattern('質問文は、最初の語と最後の語をセットで声に出して覚えるのがおすすめです。');
+ } else if(e.startsWith('¿Me ')){
+   title('① Me（メ）');add('<em>me</em> は「私に／私を」にあたる短い語です。依頼や、自分に関係する動作を表すときによく使います。');
+   title('② puede / quiere などの動詞');add('動詞によって「できますか」「〜してくれますか」などの意味が決まります。丁寧にお願いする文では、<em>¿Me puede…?</em>（私に〜していただけますか？）という形がよく使われます。');
+   title('③ 文全体の意味');add(`全体では「${escText(clean(j))}」という依頼や質問です。日本語の順番と違う部分があるので、最初は文全体をひとまとまりで覚えましょう。`);
+   usage('店員さんに商品を見せてもらう、料理を持ち帰り用にしてもらうなど、相手に何かをお願いするときに便利です。');
+   pattern('<strong>¿Me puede + 動詞…?</strong>＝「私に〜していただけますか？」。丁寧なお願いの型として覚えましょう。');
+ } else if(e.startsWith('Me ')){
+   title('① Me（メ）');add('<em>me</em> は「私を／私に」にあたる語で、自分に起きたことや自分の状態を表す表現によく使います。');
+   title('② 動詞の部分');add(`動詞が、何が起きたか・どんな状態かを伝えます。今回の日本語は「${escText(clean(j))}」です。スペイン語の短い <em>me</em> も含めて、フレーズ全体で覚えると自然に言えるようになります。`);
+   title('③ 文の組み立て');add('<strong>Me + 動詞など</strong> は、自分に関係する状態や出来事を表すよくある形です。単語の順番を日本語に合わせて並べ替えず、そのままの形で練習しましょう。');
+   usage('体調が悪い、道に迷った、何かをなくしたなど、自分の状況を伝えるときに使う表現があります。');
+   pattern('<strong>Me…</strong> で始まる表現は、動詞とセットで音声をまねして覚えるのがコツです。');
+ } else if(e.startsWith('He perdido')){
+   title('① He perdido（エ ペルディド）');add('「私は〜をなくしました」という意味です。<em>perder</em>（ペルデール）＝「なくす・失う」の過去の出来事を表す形です。');
+   title('② el / la ＋ なくした物');add('後ろに <em>el pasaporte</em>（パスポート）、<em>la cartera</em>（財布）など、なくした物を続けます。<em>el</em> と <em>la</em> は名詞の前につく語で、名詞の種類に合わせて使い分けます。');
+   title('③ 文の組み立て');add('<strong>He perdido + 物</strong>＝「〜をなくしました」。旅行中に大切な物が見つからないときに、そのまま使える型です。');
+   usage('ホテルのフロントや警察に、財布・スマートフォン・パスポートなどをなくしたと説明するときに使います。');
+   pattern('<strong>He perdido…</strong> を覚え、最後の物の名前を入れ替えて使いましょう。');
+ } else if(e.startsWith('Voy a ')){
+   title('① Voy a（ボイ ア）');add('「これから〜する」「〜するつもりです」という意味を作る形です。<em>ir</em>（イル）＝「行く」の形 <em>voy</em> に <em>a</em> と動詞の原形を続けます。');
+   title('② 動詞の原形');add('後ろの動詞が、これから何をするのかを表します。例えば <em>pensar</em> は「考える」なので、<em>Voy a pensarlo</em> は「それについて考えます」という意味になります。');
+   title('③ 文の組み立て');add('<strong>Voy a + 動詞</strong>＝「これから〜します／〜するつもりです」。予定や意思を伝えるときに便利です。');
+   usage('買い物で「少し考えます」と伝えるなど、すぐに決めずに時間を取りたい場面でも使えます。');
+   pattern('<strong>Voy a + 動詞</strong> をセットで覚えましょう。');
+ } else if(e.startsWith('Llame ')||e.startsWith('Hable ')||e.startsWith('Repita ')||e.startsWith('Limpie ')||e.startsWith('Ayúdeme')){
+   const verb=e.split(/\s+/)[0];
+   title(`① ${escText(verb)}（動詞のお願いの形）`);add('これは相手に何かをしてもらうための、丁寧な指示・依頼の形です。旅行中は、必要なことをはっきりお願いしたいときに使います。');
+   title('② 何をしてほしいか');add(`後ろに動作や相手にしてほしい内容が続きます。今回の日本語は「${escText(clean(j))}」です。`);
+   title('③ por favor（ポル ファボール）');add('「お願いします」という意味です。依頼のあとに添えると、丁寧で自然な言い方になります。');
+   usage('ゆっくり話してほしい、もう一度言ってほしい、警察や救急車を呼んでほしいなど、必要なことを伝える場面で役立ちます。');
+   pattern('動詞のお願い表現＋<strong>por favor</strong> をひとまとまりで覚えましょう。');
+ } else {
+   // Detailed fallback for phrases without a dedicated pattern: translation, pronunciation,
+   // reliable word chunks, sentence shape, travel context, and a reusable pattern.
+   const dictionary={
+    'Hola':'こんにちは','Buenos':'良い／よい','días':'日々・日','Buenas':'良い／よい','tardes':'午後','noches':'夜','Gracias':'ありがとう','Muchas':'たくさんの','Adiós':'さようなら','Hasta':'〜まで','luego':'あとで','Sí':'はい','No':'いいえ／〜ない','Perdón':'すみません／失礼します','Disculpe':'すみません（呼びかけ）','Lo':'それを／そのことを','siento':'残念に思います','De':'〜の／〜から','nada':'何もない','Por':'〜のために','favor':'好意・お願い','está':'あります／います','están':'あります／います（複数）','es':'〜です','son':'〜です（複数）','hay':'あります／います','tengo':'私は持っています','tenemos':'私たちは持っています','tiene':'持っています／ありますか','tienen':'持っています（複数）','quiero':'私は〜したい／欲しい','queremos':'私たちは〜したい','puede':'できますか／していただけますか','pueden':'できますか（複数の相手）','puedo':'私はできますか','podemos':'私たちはできますか','necesito':'私は必要です','necesitamos':'私たちは必要です','busco':'私は探しています','buscamos':'私たちは探しています','dónde':'どこ','cuándo':'いつ','cómo':'どのように／どう','cuánto':'いくら／どれくらい','cuántos':'いくつ／何人','cuántas':'いくつ／何人','qué':'何','cuál':'どれ／何','a qué hora':'何時に','el':'定冠詞（英語の the に近い）','la':'定冠詞（名詞の前につく語）','los':'複数の定冠詞','las':'複数の定冠詞','un':'ある一つの／不定冠詞','una':'ある一つの／不定冠詞','unos':'いくつかの','unas':'いくつかの','mi':'私の','mis':'私の（複数）','tu':'あなたの','este':'この','esta':'この','esto':'これ','ese':'その','esa':'その','de':'〜の／〜から','a':'〜へ／〜に','en':'〜で／〜の中に','con':'〜と一緒に／〜付きの','sin':'〜なしで','para':'〜のために／〜用に','por':'〜によって／〜のために','y':'そして','o':'または','más':'もっと／より多く','menos':'より少なく','muy':'とても','un':'ひとつの','poco':'少し','hasta':'〜まで','antes':'前に','tarde':'遅く／午後','hoy':'今日','mañana':'明日／朝','ahora':'今','aquí':'ここ','allí':'あそこ','bien':'よく／大丈夫','mal':'悪く／具合が悪く','gratis':'無料で','abierto':'開いている','abierta':'開いている','incluido':'含まれている','incluida':'含まれている','funciona':'動く／作動する','reserva':'予約','habitación':'部屋','equipaje':'荷物','estación':'駅','baño':'トイレ','agua':'水','cuenta':'会計','carta':'メニュー','desayuno':'朝食','tren':'電車・列車','hotel':'ホテル','taxi':'タクシー','grande':'大きい','pequeña':'小さい','pequeño':'小さい','color':'色','número':'番号／数字','hora':'時刻／時間','minutos':'分','personas':'人々／人数','restaurante':'レストラン','farmacia':'薬局','hospital':'病院','salida':'出口','entrada':'入口','llave':'鍵','tarjeta':'カード','efectivo':'現金','pasaporte':'パスポート','ayuda':'助け','problema':'問題','agua caliente':'お湯','café':'コーヒー','pan':'パン','leche':'牛乳','vino':'ワイン','cambio':'おつり／変更','izquierda':'左','derecha':'右','recto':'まっすぐ','cerca':'近く','lejos':'遠く','lento':'ゆっくり','despacio':'ゆっくり','quiero':'私は〜したい','hacer':'する','ir':'行く','venir':'来る','llamar':'電話する／呼ぶ','traer':'持ってくる','dar':'与える／渡す','decir':'言う','hablar':'話す','entender':'理解する','repetir':'繰り返す','esperar':'待つ','pagar':'支払う','comprar':'買う','abrir':'開ける／開く','cerrar':'閉める／閉まる','salir':'出る','llegar':'到着する','tomar':'乗る／飲む／取る','coger':'乗る／取る（スペインでよく使う）','necesario':'必要な','posible':'可能な','disponible':'利用できる／空いている','pequeño':'小さい','grande':'大きい','otro':'別の／もう一つの','otra':'別の／もう一つの','favor':'お願い','problema':'問題','ayuda':'助け','perdido':'なくした／迷った','perdida':'なくした／迷った','dolor':'痛み','emergencia':'緊急事態'
+   };
+   const pronunciation=item.kana||'';
+   const cleanPhrase=e.replace(/[¿?¡!.,:;]/g,'').trim();
+   const jp=clean(j);
+   title('① フレーズ全体の意味');add(`<strong>${escText(jp)}</strong> という意味です。まずはこの日本語とスペイン語をひと組として覚えましょう。旅行中は一語ずつ考えるより、場面ごとにフレーズを思い出す方がすばやく使えます。`);
+   title('② 発音の目安');add(`カタカナでは <strong>${escText(pronunciation)}</strong> と読みます。カタカナは発音の目安です。スペイン語の母音は比較的はっきり発音するので、音声を聞きながら一音ずつ声に出してみましょう。`);
+   const phraseKeys=Object.keys(dictionary).filter(k=>k.includes(' ')).sort((a,b)=>b.length-a.length);
+   let remaining=cleanPhrase; const known=[]; const used=new Set();
+   for(const phrase of phraseKeys){if(remaining.toLowerCase().includes(phrase.toLowerCase())){known.push(`<strong>${escText(phrase)}</strong>＝${escText(dictionary[phrase])}`);remaining=remaining.replace(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),' ');used.add(phrase.toLowerCase());}}
+   const tokens=cleanPhrase.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu)||cleanPhrase.split(/\s+/);
+   for(const w of tokens){const k=Object.keys(dictionary).find(x=>x.toLowerCase()===w.toLowerCase());if(k&&!used.has(k.toLowerCase())){known.push(`<strong>${escText(w)}</strong>＝${escText(dictionary[k])}`);used.add(k.toLowerCase());}}
+   title('③ ことばを分けてみましょう');
+   if(known.length){add(known.slice(0,8).join('<br>'));add('小さな語（<em>el / la / un / una</em> など）は、英語の the / a に近い働きをすることがあります。日本語に毎回訳して加える必要はありませんが、スペイン語では名詞と一緒に使うことが多い点を覚えておきましょう。');}
+   else {add('この表現は、単語を一つずつ訳すより、ひとまとまりの言い方として覚えるのが実用的です。日本語訳と音声を手がかりに、どの場面で使うかをイメージしましょう。');}
+   title('④ 文の組み立て');
+   let grammar='このフレーズは、伝えたい内容を短くまとめた表現です。スペイン語では主語（私・あなたなど）が動詞の形に含まれるため、主語を言わずに話すこともよくあります。';
+   if(/^¿/.test(e)){grammar='文頭の「¿」と文末の「?」は、スペイン語の疑問文のしるしです。疑問詞がある場合はその語が質問の中心になります。日本語と語順が違っても、フレーズ全体で覚えると使いやすくなります。';}
+   if(/^No\s/i.test(e)){grammar='文頭の <em>No</em> は否定の合図です。「〜ではありません」「〜しません」「〜がありません」など、後ろの語によって日本語訳が変わります。';}
+   if(/por favor/i.test(e)){grammar+=' <em>por favor</em> は「お願いします」。注文や依頼に添えると、短い表現でも丁寧になります。';}
+   if(/^Quiero\b/i.test(e)){grammar='<em>Quiero</em> は「私は〜したい／欲しい」です。後ろに動詞の原形を続けると「〜したい」、名詞を続けると「〜が欲しい」という形になります。';}
+   if(/^Hay\b|^¿Hay\b/i.test(e)){grammar='<em>hay</em> は「〜があります／います」。物やサービスがあるかどうかを尋ねるときに使い、後ろに知りたいものを続けます。';}
+   if(/^¿Puede\b|^¿Pueden\b|^¿Puedo\b/i.test(e)){grammar='<em>poder</em> は「できる」。<em>Puede</em> は相手に丁寧に尋ねるとき、<em>Pueden</em> は複数の相手に、<em>Puedo</em> は「私はできますか」と自分について尋ねるときに使います。';}
+   if(/^Tengo\b|^Tenemos\b/i.test(e)){grammar='<em>Tengo</em> は「私は持っています」、<em>Tenemos</em> は「私たちは持っています」。予約や必要な物があることを伝えるときに使えます。';}
+   add(grammar);
+   title('⑤ 旅行ではこんな場面で使います');
+   const context=cat==='レストラン'?'メニューを見て注文や質問をするとき、店員さんに伝える場面を想像してみましょう。短い言葉でも、落ち着いてはっきり言えば役立ちます。':cat==='ホテル'?'フロントでの手続きや、部屋・設備について確認するときに使う場面を思い浮かべましょう。必要なら画面を見せながら話しても大丈夫です。':cat==='空港'?'空港のスタッフに尋ねたり、表示や場所を確認したりする場面で役立ちます。場所を指さしながら言うと、より伝わりやすくなります。':cat==='交通'?'駅や乗り物の係員に尋ねる場面を想像しましょう。目的地やチケットを指さしながら使うと伝わりやすくなります.':cat==='買い物'?'商品を指さしながら店員さんに伝えると使いやすい表現です。必要に応じて値段やサイズなどの言葉を付け足しましょう。':'旅行中にこの日本語を言いたくなる場面をひとつ思い浮かべ、スペイン語を声に出して練習しましょう。';
+   add(context);
+   title('⑥ 似た表現・応用のヒント');
+   if(/^¿Dónde está/i.test(e)) add('<strong>¿Dónde está…?</strong>＝「…はどこですか？」。最後の場所を入れ替えて応用できます。');
+   else if(/^¿Cuánto/i.test(e)) add('<strong>¿Cuánto…?</strong> は「いくら／どれくらい」と尋ねるときの出だしです。値段を聞くときは <em>¿Cuánto cuesta…?</em> が便利です。');
+   else if(/^¿Qué/i.test(e)) add('<strong>¿Qué…?</strong> は「何？」と尋ねる型です。<em>¿Qué es esto?</em>（これは何ですか？）や <em>¿Qué recomienda?</em>（何がおすすめですか？）も一緒に覚えると応用できます。');
+   else if(/por favor/i.test(e)) add('<strong>por favor</strong>＝お願いします。最後に <em>gracias</em>（ありがとう）を添えると、やり取りがより自然になります。');
+   else if(/^Quiero/i.test(e)) add('<strong>Quiero + 動詞</strong>＝「〜したいです」。<em>Quiero ir…</em>（…へ行きたいです）など、後ろを変えて使えます。');
+   else if(/^¿Puede/i.test(e)) add('<strong>¿Puede…?</strong>＝「〜していただけますか？」。相手に丁寧にお願いしたいときに使えます。');
+   else add('覚えるときは、フレーズ全体を音声に合わせて2〜3回声に出し、そのあと日本語だけを見てスペイン語を思い出してみましょう。');
+   title('⭐ 覚え方');add('最初は一語ずつ完璧に暗記しなくても大丈夫です。「日本語の意味」「スペイン語の音」「使う場面」をセットにして覚え、慣れてきたらキーワードを入れ替えて応用してみましょう。');
+ }
+ const alignment=chunksForPhrase(item);
+ title('⑦ 下線のまとまり');
+ add(alignment.note||'下線は一語ずつの直訳ではなく、意味のまとまりを示しています。冠詞などは後ろの名詞と一緒に覚え、日本語と語順が異なるところはフレーズ全体の意味で捉えましょう。');
+ // Add grammar notes for multiword noun groups, especially article + noun + de + noun.
+ const ec=e.replace(/^[¿¡]+|[?!.！]+$/g,'').trim();
+ let gm;
+ if((gm=ec.match(/\b(la|el|los|las|un|una|unos|unas)\s+(parada|entrada|salida|estación|oficina|número|puerta|recogida|mostrador|contraseña|talla|carta|cuenta|propina|reserva|habitación|aeropuerto|metro)\s+de\s+(.+)/i))){
+   const art=gm[1], noun=gm[2], tail=gm[3].replace(/[?!.]+$/,'');
+   const nouns={parada:'停留所・乗り場',entrada:'入口',salida:'出口',estación:'駅',oficina:'事務所・案内所',número:'番号',puerta:'ドア・口',recogida:'受け取り',mostrador:'カウンター',contraseña:'パスワード',talla:'サイズ',carta:'メニュー',cuenta:'会計・勘定',propina:'チップ',reserva:'予約',habitación:'部屋',aeropuerto:'空港',metro:'地下鉄'};
+   const artJa=({la:'la は女性名詞につく定冠詞',el:'el は男性名詞につく定冠詞',los:'los は男性名詞複数につく定冠詞',las:'las は女性名詞複数につく定冠詞',un:'un は男性名詞につく不定冠詞',una:'una は女性名詞につく不定冠詞',unos:'unos は男性名詞複数につく不定冠詞',unas:'unas は女性名詞複数につく不定冠詞'})[art.toLowerCase()];
+   add(`<strong>まとまりの中身：</strong><em>${escText(art)} ${escText(noun)}</em> は「${escText(nouns[noun.toLowerCase()]||noun)}」という名詞のまとまりです。${escText(artJa)}。冠詞は単独で訳すより、後ろの名詞とセットで覚えましょう。`);
+   add(`<em>de</em> は名詞と名詞をつなぎ、「〜の」「〜に関する」「〜用の」などの関係を表します。ここでは <em>${escText(tail)}</em> が前の名詞を説明し、全体で一つの意味になります。`);
+ } else if(/\bdel\b/i.test(ec)){
+   add('<em>del</em> は <em>de + el</em> の短縮形です。<em>de</em> は名詞同士の関係をつなぎ、<em>el</em> は男性名詞につく定冠詞です。たとえば <em>la entrada del metro</em> は「地下鉄の入口」。<em>de</em> の前後をまとめて「何の入口か」を表します。');
+ } else if(/\bde\b/i.test(ec)){
+   add('<em>de</em> は「〜の」だけでなく、文脈によって「〜に関する」「〜用の」「〜から」などの関係を表す前置詞です。下線で複数語がまとまっているときは、<em>de</em> の前後を一つの意味のまとまりとして確認しましょう。');
+ }
+ // Place the underline-group explanation immediately before the sentence-structure section.
+ const underlineIndex=out.findIndex(part=>part.includes('⑦ 下線のまとまり'));
+ const structureIndex=out.findIndex(part=>part.includes('文の組み立て'));
+ if(underlineIndex>=0 && structureIndex>=0 && underlineIndex>structureIndex){
+   const underlineBlock=out.splice(underlineIndex);
+   const insertAt=out.findIndex(part=>part.includes('文の組み立て'));
+   out.splice(insertAt,0,...underlineBlock);
+ }
+ // Renumber numbered explanation headings in the order they now appear.
+ let sectionNumber=0;
+ const circled=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+ out=out.map(part=>part.replace(/(<p><strong>)([①②③④⑤⑥⑦⑧⑨⑩])\s*/,(match,prefix,oldNumber)=>{
+   sectionNumber++;
+   return prefix+(circled[sectionNumber-1]||oldNumber)+' ';
+ }));
+ return out.join('');
+}
+
 function next(){
+  const modal=document.getElementById('explanationModal'); if(modal)modal.classList.add('hidden'); document.body.style.overflow='';
   if(!pool.length){
-    ja.textContent=weakOnly?'この条件で★苦手登録されたカードはありません。':'カードがありません。';
+    ja.textContent=weakOnly?'この条件で□苦手登録されたカードはありません。':'カードがありません。';
     answer.classList.add('hidden');
     reveal.textContent='答えを見る';
     progress.textContent='';
@@ -295,7 +914,7 @@ function next(){
     kana.textContent='';
     answer.classList.add('hidden');
     reveal.textContent='次のターム';
-    fav.textContent='☆';
+    updateFavButton();
     progress.textContent=`ターム ${termNo} 完了　全${pool.length}件`;
     return;
   }
@@ -304,11 +923,15 @@ function next(){
   ja.textContent=current.ja;
   es.textContent=current.es;
   kana.textContent=current.kana;
+  const chunks=chunksForPhrase(current);
+  ja.textContent=current.ja;
+  document.getElementById('esUnderline').innerHTML=underlineHtml(chunks.es);
+  document.getElementById('explanation').innerHTML=explanationHtml(current);
   document.getElementById('tagL').textContent=labels[current.level];
   document.getElementById('tagC').textContent=current.cat;
   answer.classList.add('hidden');
   reveal.textContent='答えを見る';
-  fav.textContent=getWeak().includes(current.ja)?'★':'☆';
+  updateFavButton();
   updateProgress();
 }
 
@@ -326,10 +949,21 @@ function updateWeakButton(){
   if(!b)return;
   b.classList.toggle('weak-active',weakOnly);
   b.setAttribute('aria-pressed',weakOnly?'true':'false');
+  b.textContent=weakOnly?'■ 苦手だけ（選択中）':'□ 苦手だけ';
+}
+function updateFavButton(){
+  const b=document.getElementById('fav');
+  if(!b)return;
+  const marked=!!(current && getWeak().includes(current.ja));
+  b.textContent=marked?'■ 苦手です':'□ 苦手です';
+  b.classList.toggle('weak-marked',marked);
+  b.setAttribute('aria-pressed',marked?'true':'false');
 }
 
 function start(only=false){
   weakOnly=only;
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
   buildPool(only);
   updateWeakButton();
   next();
@@ -349,15 +983,38 @@ function reset(){
   progress.textContent='';
 }
 
-document.getElementById('start').onclick=()=>start(false);
+document.getElementById('start').onclick=()=>start(weakOnly);
 document.getElementById('replay').onclick=()=>speak();
+const explanationModal=document.getElementById('explanationModal');
+function openExplanation(){
+  if(!current)return;
+  document.getElementById('explanationModalPhrase').textContent=current.es+'　—　'+current.ja;
+  document.getElementById('explanationModalBody').innerHTML=document.getElementById('explanation').innerHTML;
+  explanationModal.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  document.getElementById('closeExplanation').focus();
+}
+function closeExplanation(){
+  explanationModal.classList.add('hidden');
+  document.body.style.overflow='';
+  document.getElementById('openExplanation').focus();
+}
+document.getElementById('openExplanation').onclick=openExplanation;
+document.getElementById('closeExplanation').onclick=closeExplanation;
+document.getElementById('closeExplanationBottom').onclick=closeExplanation;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!explanationModal.classList.contains('hidden'))closeExplanation();});
 
 document.getElementById('weak').onclick=(e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  weakOnly=!weakOnly;
-  buildPool(weakOnly);
+  e.preventDefault(); e.stopPropagation();
+  weakOnly=!weakOnly; updateWeakButton();
   updateWeakButton();
+};
+document.getElementById('exitQuiz').onclick=()=>{
+  document.getElementById('explanationModal').classList.add('hidden'); document.body.style.overflow='';
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('setupScreen').classList.remove('hidden');
+  reset();
 };
 
 reveal.onclick=()=>{
@@ -368,6 +1025,8 @@ reveal.onclick=()=>{
   }
   if(answer.classList.contains('hidden')){
     answer.classList.remove('hidden');
+    const chunks=chunksForPhrase(current);
+    ja.innerHTML=underlineLargeHtml(chunks.ja,chunks.jaSuffix);
     reveal.textContent=queue.length===0?'次のターム':'次のカード';
     speak();
   }else{
@@ -381,7 +1040,7 @@ fav.onclick=()=>{
   if(w.includes(current.ja))w=w.filter(x=>x!==current.ja);
   else w.push(current.ja);
   setWeak(w);
-  fav.textContent=w.includes(current.ja)?'★':'☆';
+  updateFavButton();
 };
 
 cats();
