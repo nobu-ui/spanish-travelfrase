@@ -299,7 +299,44 @@ select{
 .conversation-es{font-size:1.35rem;font-weight:750;color:#174b69;line-height:1.55;overflow-wrap:anywhere;}
 .conversation-kana{font-size:.96rem;color:#526a78;line-height:1.55;margin-top:4px;}
 </style>
-</head><body><div class="wrap"><div class="titlebar"><h1>スペイン旅行フレーズ</h1><span class="app-version">v1.5</span></div>
+<style id="v15-scrolling-and-underlines">
+/* v1.5: keep the navigation button fixed while all answer content scrolls. */
+.card > #answer,
+#answer,
+.answer-main{
+  min-height:0 !important;
+}
+.card > #answer,
+#answer{
+  flex:1 1 auto !important;
+  max-height:none !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  padding:0 9px 12px 3px !important;
+  margin:0 0 3px !important;
+  scrollbar-gutter:stable;
+}
+/* Avoid Japanese color underlines being cropped by line-height and height limits. */
+.card > .ja{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  max-height:136px !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  padding:0 3px 8px 0 !important;
+  margin:10px 0 8px !important;
+  line-height:1.65 !important;
+  overflow-wrap:anywhere;
+}
+.ja-word-chip{vertical-align:baseline;line-height:1.65;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.card > .row:last-child{z-index:2;}
+@media(max-width:600px){
+  .card > .ja{max-height:125px !important;}
+}
+</style></head><body><div class="wrap"><div class="titlebar"><h1>スペイン旅行フレーズ</h1><span class="app-version">v1.5</span></div>
 <div id="setupScreen">
   <div class="panel"><label>レベル</label><select id="level"></select><label>シチュエーション</label><select id="cat"></select><div class="row" style="margin-top:12px"><button class="primary" id="start">この条件で練習</button><button id="weak">□ 苦手だけ</button></div><p class="small" id="info"></p></div>
   <p class="small">※同じ条件のフレーズは重複なしで1回ずつ出題され、すべて出題すると1ターム終了です。次のタームでは順番をシャッフルして再び全件を1回ずつ出題します。「□ 苦手だけ」では、その条件内の苦手フレーズだけが対象です。</p>
@@ -643,16 +680,53 @@ function chunksForPhrase(item){
   // Fallback: when a reliable correspondence cannot be established, use one whole-phrase line rather than misleading word-by-word lines.
   return mk([jpClean],[esClean],'下線は一語ずつの直訳ではなく、意味のまとまりを示しています。冠詞などは後ろの名詞と一緒に覚え、日本語と語順が異なるところはフレーズ全体の意味で捉えましょう。');
 }
+// Align existing meaning groups to the *original* phrase. Preserve every character.
+// Older phrase-specific hints sometimes paraphrase the Japanese or change word order;
+// never show their paraphrase in place of the actual question.
+function alignUnderlinedParts(parts, original, isSpanish=false){
+  const clean=String(original||'').trim();
+  const content=isSpanish
+    ?clean.replace(/^[¿¡]+|[?!.！]+$/g,'').trim()
+    :clean.replace(/[？?。.!！]+$/g,'').trim();
+  if(!content)return [];
+  const given=parts.map(p=>p.t).join('');
+  if(given===content)return parts;
+  // Keep meaningful matching parts when the old hints omit connecting particles,
+  // but put them back in their real order and restore all missing material.
+  const candidates=[];
+  for(const p of parts){
+    if(!p.t)continue;
+    let at=content.indexOf(p.t);
+    if(at>=0 && !candidates.some(q=>q.start===at && q.end===at+p.t.length)){
+      candidates.push({start:at,end:at+p.t.length,t:p.t,c:p.c});
+    }
+  }
+  candidates.sort((a,b)=>a.start-b.start||b.end-a.end);
+  const aligned=[];
+  let pos=0,lastColor=0;
+  for(const p of candidates){
+    if(p.start<pos)continue;
+    if(p.start>pos)aligned.push({t:content.slice(pos,p.start),c:lastColor});
+    aligned.push({t:p.t,c:p.c});
+    pos=p.end;lastColor=p.c;
+  }
+  if(pos<content.length)aligned.push({t:content.slice(pos),c:lastColor});
+  // Fall back to a single full-length underline rather than falsely translated groups.
+  if(!aligned.length)aligned.push({t:content,c:0});
+  return aligned;
+}
 function underlineHtml(parts, fullPhrase=''){
-  // Underline only the meaningful words, but retain the Spanish opening/closing
-  // punctuation from the original phrase (especially ¿ ... ? and ¡ ... !).
   const phrase=String(fullPhrase||'').trim();
   const prefix=(phrase.match(/^[¿¡]+/)||[''])[0];
   const suffix=(phrase.match(/[?!.！]+$/)||[''])[0];
-  const chips=parts.map(p=>`<span class="word-chip" style="--chip-color:${colors[p.c%colors.length]}"><span class="word">${esc(p.t)}</span><span class="under"></span></span>`).join('');
+  const safe=alignUnderlinedParts(parts,phrase,true);
+  const chips=safe.map(p=>`<span class="word-chip" style="--chip-color:${colors[p.c%colors.length]}"><span class="word">${esc(p.t)}</span><span class="under"></span></span>`).join('');
   return (prefix?`<span class="ja-punctuation">${esc(prefix)}</span>`:'')+chips+(suffix?`<span class="ja-punctuation">${esc(suffix)}</span>`:'');
 }
-function underlineLargeHtml(parts,suffix=''){return parts.map(p=>`<span class="ja-word-chip" style="--chip-color:${colors[p.c%colors.length]}">${esc(p.t)}</span>`).join('')+(suffix?`<span class="ja-punctuation">${esc(suffix)}</span>`:'');}
+function underlineLargeHtml(parts,suffix='',original=''){
+  const safe=alignUnderlinedParts(parts,original,false);
+  return safe.map(p=>`<span class="ja-word-chip" style="--chip-color:${colors[p.c%colors.length]}">${esc(p.t)}</span>`).join('')+(suffix?`<span class="ja-punctuation">${esc(suffix)}</span>`:'');
+}
 function explanationHtml(item){
  const e=item.es.trim(), j=item.ja.trim(), cat=item.cat;
  const clean=x=>String(x).replace(/[¿?¡!.,。！？]$/g,'');
@@ -989,6 +1063,8 @@ function next(){
   document.getElementById('tagL').textContent=labels[current.level];
   document.getElementById('tagC').textContent=current.cat;
   answer.classList.add('hidden');
+  answer.scrollTop=0;
+  ja.scrollTop=0;
   reveal.textContent='答えを見る';
   updateFavButton();
   updateProgress();
@@ -1112,8 +1188,10 @@ reveal.onclick=()=>{
   }
   if(answer.classList.contains('hidden')){
     answer.classList.remove('hidden');
+    answer.scrollTop=0;
+    ja.scrollTop=0;
     const chunks=chunksForPhrase(current);
-    ja.innerHTML=underlineLargeHtml(chunks.ja,chunks.jaSuffix);
+    ja.innerHTML=underlineLargeHtml(chunks.ja,chunks.jaSuffix,current.ja);
     reveal.textContent=queue.length===0?'次のターム':'次のカード';
     speak();
   }else{
